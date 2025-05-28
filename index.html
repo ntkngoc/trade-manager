@@ -3,78 +3,100 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MEXC Trading Dashboard Pro</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
+    <title>Trading Dashboard - Tổng Quan</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
+        
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             color: #333;
         }
-
+        
         .container {
-            max-width: 1600px;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 20px;
         }
-
+        
         .header {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             border-radius: 20px;
             padding: 30px;
             margin-bottom: 30px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
             text-align: center;
         }
-
+        
         .header h1 {
-            color: #2c3e50;
             font-size: 2.5em;
-            margin-bottom: 10px;
             background: linear-gradient(45deg, #667eea, #764ba2);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
         }
-
-        .header p {
-            color: #7f8c8d;
-            font-size: 1.2em;
+        
+        .nav-menu {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 20px;
         }
-
+        
+        .nav-btn {
+            padding: 12px 24px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        
+        .nav-btn.active {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+        }
+        
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
             margin-bottom: 30px;
         }
-
+        
         .stat-card {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
-            border-radius: 15px;
-            padding: 25px;
-            text-align: center;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
-            transition: transform 0.3s ease;
         }
-
+        
         .stat-card:hover {
             transform: translateY(-5px);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.15);
         }
-
+        
         .stat-card::before {
             content: '';
             position: absolute;
@@ -84,573 +106,315 @@
             height: 4px;
             background: linear-gradient(45deg, #667eea, #764ba2);
         }
-
-        .stat-number {
+        
+        .stat-icon {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            color: #667eea;
+        }
+        
+        .stat-value {
             font-size: 2.2em;
             font-weight: bold;
-            margin-bottom: 10px;
-        }
-
-        .stat-label {
-            color: #7f8c8d;
-            font-size: 0.9em;
-            text-transform: uppercase;
-            letter-spacing: 1px;
             margin-bottom: 5px;
         }
-
+        
+        .stat-label {
+            color: #666;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+        
         .stat-change {
-            font-size: 0.8em;
-            padding: 5px 10px;
-            border-radius: 15px;
-            margin-top: 10px;
-            display: inline-block;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: 600;
         }
-
-        .profit {
-            color: #27ae60;
-        }
-
-        .loss {
-            color: #e74c3c;
-        }
-
-        .neutral {
-            color: #3498db;
-        }
-
-        .profit-bg {
-            background: rgba(46, 204, 113, 0.1);
-            color: #27ae60;
-        }
-
-        .loss-bg {
-            background: rgba(231, 76, 60, 0.1);
-            color: #e74c3c;
-        }
-
-        .dashboard-grid {
+        
+        .positive { color: #4CAF50; }
+        .negative { color: #f44336; }
+        
+        .charts-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 25px;
             margin-bottom: 30px;
         }
-
-        .card {
+        
+        .chart-card {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             border-radius: 20px;
             padding: 30px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            min-height: 400px;
         }
-
-        .card:hover {
-            transform: translateY(-5px);
-        }
-
-        .card h3 {
-            color: #2c3e50;
+        
+        .chart-title {
+            font-size: 1.4em;
+            font-weight: 600;
             margin-bottom: 20px;
-            font-size: 1.5em;
+            color: #333;
             display: flex;
             align-items: center;
             gap: 10px;
         }
-
-        .upload-area {
-            border: 3px dashed #667eea;
-            border-radius: 15px;
-            padding: 40px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-bottom: 20px;
+        
+        .summary-table {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow-x: auto;
         }
-
-        .upload-area:hover {
-            background: rgba(102, 126, 234, 0.1);
-            border-color: #764ba2;
-        }
-
-        .upload-area.dragover {
-            background: rgba(102, 126, 234, 0.2);
-            border-color: #764ba2;
-        }
-
-        .file-input {
-            display: none;
-        }
-
-        .btn {
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 25px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: all 0.3s ease;
-            margin: 5px;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        }
-
-        .btn-secondary {
-            background: linear-gradient(45deg, #95a5a6, #7f8c8d);
-        }
-
-        .btn-success {
-            background: linear-gradient(45deg, #2ecc71, #27ae60);
-        }
-
-        .chart-container {
-            position: relative;
-            height: 400px;
-            margin-top: 20px;
-        }
-
-        .full-width {
-            grid-column: 1 / -1;
-        }
-
-        .data-table {
+        
+        table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
-            background: white;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
-
-        .data-table th,
-        .data-table td {
+        
+        th, td {
             padding: 15px;
             text-align: left;
-            border-bottom: 1px solid #ecf0f1;
+            border-bottom: 1px solid #eee;
         }
-
-        .data-table th {
+        
+        th {
             background: linear-gradient(45deg, #667eea, #764ba2);
             color: white;
             font-weight: 600;
         }
-
-        .data-table tr:hover {
-            background: rgba(102, 126, 234, 0.1);
+        
+        tr:hover {
+            background: rgba(102, 126, 234, 0.05);
         }
-
-        .alert {
-            padding: 15px;
-            border-radius: 10px;
-            margin: 10px 0;
-            display: none;
-        }
-
-        .alert-success {
-            background: rgba(46, 204, 113, 0.1);
-            border: 1px solid #27ae60;
-            color: #27ae60;
-        }
-
-        .alert-error {
-            background: rgba(231, 76, 60, 0.1);
-            border: 1px solid #e74c3c;
-            color: #e74c3c;
-        }
-
-        .loading {
-            display: none;
+        
+        .last-updated {
             text-align: center;
-            padding: 20px;
+            color: #666;
+            font-style: italic;
+            margin-top: 20px;
         }
-
-        .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #667eea;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
+        
         @media (max-width: 768px) {
-            .dashboard-grid {
+            .charts-grid {
                 grid-template-columns: 1fr;
             }
             
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
+            .nav-menu {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .header h1 {
+                font-size: 2em;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Header -->
         <div class="header">
-            <h1>📊 MEXC Trading Dashboard Pro</h1>
-            <p>Phân tích chuyên sâu • Quản lý rủi ro • Tối ưu hiệu suất</p>
+            <h1><i class="fas fa-chart-line"></i> Trading Dashboard</h1>
+            <p>Hệ thống theo dõi và phân tích giao dịch tự động</p>
+            
+            <div class="nav-menu">
+                <a href="#" class="nav-btn active"><i class="fas fa-home"></i> Tổng Quan</a>
+                <a href="bingx.html" class="nav-btn"><i class="fas fa-exchange-alt"></i> BingX</a>
+                <a href="mexc.html" class="nav-btn"><i class="fas fa-coins"></i> MEXC</a>
+                <a href="analytics.html" class="nav-btn"><i class="fas fa-chart-bar"></i> Analytics</a>
+                <a href="risk.html" class="nav-btn"><i class="fas fa-shield-alt"></i> Risk</a>
+                <a href="portfolio.html" class="nav-btn"><i class="fas fa-briefcase"></i> Portfolio</a>
+                <a href="settings.html" class="nav-btn"><i class="fas fa-cog"></i> Settings</a>
+            </div>
         </div>
-
-        <!-- Stats Overview -->
+        
         <div class="stats-grid">
             <div class="stat-card">
-                <div class="stat-label">Tổng Vốn Hiện Tại</div>
-                <div class="stat-number profit" id="currentCapital">$1,587.58</div>
-                <div class="stat-change profit-bg" id="capitalChange">+41.7% từ vốn ban đầu</div>
+                <div class="stat-icon"><i class="fas fa-dollar-sign"></i></div>
+                <div class="stat-value positive">$139.85</div>
+                <div class="stat-label">Tổng P&L</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i> +8.5%
+                </div>
             </div>
+            
             <div class="stat-card">
-                <div class="stat-label">Tổng Lãi/Lỗ Ròng</div>
-                <div class="stat-number profit" id="totalPnL">$166.87</div>
-                <div class="stat-change profit-bg" id="pnlChange">ROC: 9.24%</div>
+                <div class="stat-icon"><i class="fas fa-exchange-alt"></i></div>
+                <div class="stat-value">435</div>
+                <div class="stat-label">Tổng giao dịch</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i> +12 giao dịch
+                </div>
             </div>
+            
             <div class="stat-card">
-                <div class="stat-label">Tỷ Lệ Thắng</div>
-                <div class="stat-number profit" id="winRate">81.82%</div>
-                <div class="stat-change profit-bg">9/11 ngày có lãi</div>
+                <div class="stat-icon"><i class="fas fa-credit-card"></i></div>
+                <div class="stat-value negative">$52.30</div>
+                <div class="stat-label">Tổng phí</div>
+                <div class="stat-change negative">
+                    <i class="fas fa-arrow-down"></i> -2.3%
+                </div>
             </div>
+            
             <div class="stat-card">
-                <div class="stat-label">Tổng Lệnh Thực Hiện</div>
-                <div class="stat-number neutral" id="totalTrades">120</div>
-                <div class="stat-change profit-bg">Avg: 10.9 lệnh/ngày</div>
+                <div class="stat-icon"><i class="fas fa-calendar-alt"></i></div>
+                <div class="stat-value">35</div>
+                <div class="stat-label">Tổng ngày giao dịch</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i> +5 ngày
+                </div>
             </div>
         </div>
-
-        <!-- Main Dashboard -->
-        <div class="dashboard-grid">
-            <!-- Import Excel Section -->
-            <div class="card">
-                <h3>📁 Import Dữ Liệu Trading</h3>
-                
-                <div class="upload-area" onclick="document.getElementById('fileInput').click()">
-                    <div style="font-size: 3em; margin-bottom: 15px;">📊</div>
-                    <h4>Kéo thả file Excel hoặc click để chọn</h4>
-                    <p style="color: #7f8c8d; margin-top: 10px;">
-                        Hỗ trợ định dạng MEXC Trading Report<br>
-                        .xlsx, .xls, .csv - Tối đa: 10MB
-                    </p>
+        
+        <div class="charts-grid">
+            <div class="chart-card">
+                <div class="chart-title">
+                    <i class="fas fa-chart-line"></i>
+                    P&L theo thời gian
                 </div>
-                
-                <input type="file" id="fileInput" class="file-input" accept=".xlsx,.xls,.csv">
-                
-                <div class="alert alert-success" id="successAlert"></div>
-                <div class="alert alert-error" id="errorAlert"></div>
-                
-                <div class="loading" id="loading">
-                    <div class="spinner"></div>
-                    <p>Đang phân tích dữ liệu trading...</p>
-                </div>
-
-                <div style="margin-top: 20px;">
-                    <button class="btn btn-secondary" onclick="downloadTemplate()">
-                        📥 Tải Template MEXC
-                    </button>
-                    <button class="btn btn-success" onclick="exportAnalysis()" id="exportBtn">
-                        📤 Export Phân Tích
-                    </button>
-                </div>
+                <canvas id="pnlChart" width="400" height="200"></canvas>
             </div>
-
-            <!-- Chart Analysis -->
-            <div class="card">
-                <h3>📈 Biểu Đồ P&L Tích Lũy</h3>
-                <div class="chart-container">
-                    <canvas id="profitChart"></canvas>
+            
+            <div class="chart-card">
+                <div class="chart-title">
+                    <i class="fas fa-chart-pie"></i>
+                    Phân bổ P&L theo Exchange
                 </div>
+                <canvas id="exchangeChart" width="400" height="200"></canvas>
             </div>
-
-            <!-- Performance Analysis -->
-            <div class="card full-width">
-                <h3>📋 Phân Tích Chi Tiết</h3>
-                
-                <div style="overflow-x: auto;">
-                    <table class="data-table" id="analysisTable">
-                        <thead>
-                            <tr>
-                                <th>Chỉ Số</th>
-                                <th>Giá Trị (USD)</th>
-                                <th>Giá Trị (VND)</th>
-                                <th>Phần Trăm</th>
-                                <th>Đánh Giá</th>
-                            </tr>
-                        </thead>
-                        <tbody id="analysisBody">
-                            <tr>
-                                <td><strong>Tổng Lãi</strong></td>
-                                <td class="profit">$183.16</td>
-                                <td class="profit">4,762,097 VND</td>
-                                <td class="profit">91.11%</td>
-                                <td><span class="stat-change profit-bg">Xuất sắc</span></td>
-                            </tr>
-                            <tr>
-                                <td><strong>Tổng Lỗ</strong></td>
-                                <td class="loss">-$10.92</td>
-                                <td class="loss">-283,809 VND</td>
-                                <td class="loss">5.96%</td>
-                                <td><span class="stat-change profit-bg">Kiểm soát tốt</span></td>
-                            </tr>
-                            <tr>
-                                <td><strong>Phí Giao Dịch</strong></td>
-                                <td class="loss">-$5.37</td>
-                                <td class="loss">-139,658 VND</td>
-                                <td class="loss">2.93%</td>
-                                <td><span class="stat-change profit-bg">Hợp lý</span></td>
-                            </tr>
-                            <tr>
-                                <td><strong>Hệ Số Lợi Nhuận</strong></td>
-                                <td class="profit">16.78%</td>
-                                <td>-</td>
-                                <td>-</td>
-                                <td><span class="stat-change profit-bg">Rất tốt</span></td>
-                            </tr>
-                            <tr>
-                                <td><strong>ROC (Return on Capital)</strong></td>
-                                <td class="profit">9.24%</td>
-                                <td>-</td>
-                                <td>-</td>
-                                <td><span class="stat-change profit-bg">Ấn tượng</span></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+        </div>
+        
+        <div class="summary-table">
+            <div class="chart-title">
+                <i class="fas fa-table"></i>
+                Tóm tắt giao dịch gần đây
             </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Ngày</th>
+                        <th>Exchange</th>
+                        <th>P&L</th>
+                        <th>Số giao dịch</th>
+                        <th>Trạng thái</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>2025-05-17</td>
+                        <td>MEXC</td>
+                        <td class="negative">-$2.10</td>
+                        <td>8</td>
+                        <td><span style="color: #f44336;">📉 Loss</span></td>
+                    </tr>
+                    <tr>
+                        <td>2025-05-16</td>
+                        <td>MEXC</td>
+                        <td class="positive">+$6.80</td>
+                        <td>15</td>
+                        <td><span style="color: #4CAF50;">📈 Profit</span></td>
+                    </tr>
+                    <tr>
+                        <td>2025-05-15</td>
+                        <td>MEXC</td>
+                        <td class="positive">+$11.20</td>
+                        <td>25</td>
+                        <td><span style="color: #4CAF50;">📈 Profit</span></td>
+                    </tr>
+                    <tr>
+                        <td>2025-05-10</td>
+                        <td>BingX</td>
+                        <td class="negative">-$5.10</td>
+                        <td>4</td>
+                        <td><span style="color: #f44336;">📉 Loss</span></td>
+                    </tr>
+                    <tr>
+                        <td>2025-05-08</td>
+                        <td>BingX</td>
+                        <td class="positive">+$15.80</td>
+                        <td>12</td>
+                        <td><span style="color: #4CAF50;">📈 Profit</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="last-updated">
+            <i class="fas fa-clock"></i> Cập nhật lần cuối: 2025-05-28 15:12:00
         </div>
     </div>
-
+    
     <script>
-        let tradingData = {};
-        let profitChart = null;
-
-        // Initialize
-        document.addEventListener('DOMContentLoaded', function() {
-            initializeChart();
-            setupEventListeners();
-        });
-
-        function setupEventListeners() {
-            const uploadArea = document.querySelector('.upload-area');
-            const fileInput = document.getElementById('fileInput');
-
-            // Drag and drop
-            uploadArea.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                uploadArea.classList.add('dragover');
-            });
-
-            uploadArea.addEventListener('dragleave', () => {
-                uploadArea.classList.remove('dragover');
-            });
-
-            uploadArea.addEventListener('drop', (e) => {
-                e.preventDefault();
-                uploadArea.classList.remove('dragover');
-                const files = e.dataTransfer.files;
-                if (files.length > 0) {
-                    handleFile(files[0]);
-                }
-            });
-
-            // File input change
-            fileInput.addEventListener('change', (e) => {
-                if (e.target.files.length > 0) {
-                    handleFile(e.target.files[0]);
-                }
-            });
-        }
-
-        function handleFile(file) {
-            if (!file) return;
-
-            // Validate file type
-            const validTypes = ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 
-                              'application/vnd.ms-excel', 'text/csv'];
-            
-            if (!validTypes.includes(file.type) && !file.name.match(/\.(xlsx|xls|csv)$/i)) {
-                showAlert('Định dạng file không hỗ trợ. Vui lòng chọn file .xlsx, .xls hoặc .csv', 'error');
-                return;
-            }
-
-            // Validate file size (10MB)
-            if (file.size > 10 * 1024 * 1024) {
-                showAlert('File quá lớn. Vui lòng chọn file nhỏ hơn 10MB', 'error');
-                return;
-            }
-
-            showLoading(true);
-            
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, { type: 'array' });
-                    
-                    // Process MEXC format
-                    processMEXCData(workbook);
-                    showAlert(`Đã phân tích thành công dữ liệu MEXC trading từ file: ${file.name}`, 'success');
-                } catch (error) {
-                    console.error('Error processing file:', error);
-                    showAlert('Lỗi khi xử lý file. Vui lòng kiểm tra định dạng dữ liệu MEXC', 'error');
-                } finally {
-                    showLoading(false);
-                }
-            };
-            
-            reader.readAsArrayBuffer(file);
-        }
-
-        function processMEXCData(workbook) {
-            // Find the trading summary sheet
-            const sheetNames = workbook.SheetNames;
-            let summarySheet = workbook.Sheets[sheetNames[0]];
-
-            const jsonData = XLSX.utils.sheet_to_json(summarySheet, { header: 1 });
-            
-            // Update dashboard with real data
-            updateDashboardFromData(jsonData);
-        }
-
-        function updateDashboardFromData(data) {
-            // Parse and update real data from Excel
-            data.forEach(row => {
-                if (!row[0]) return;
-                
-                const indicator = row[0].toString().trim();
-                const usdValue = parseFloat(row[1]) || 0;
-                
-                // Update specific indicators
-                if (indicator.includes('Tổng Vốn Hiện Tại')) {
-                    document.getElementById('currentCapital').textContent = `$${usdValue.toLocaleString()}`;
-                }
-                if (indicator.includes('Tổng Lãi/Lỗ Ròng')) {
-                    document.getElementById('totalPnL').textContent = `$${usdValue.toLocaleString()}`;
-                }
-                if (indicator.includes('Tổng lệnh thực hiện')) {
-                    document.getElementById('totalTrades').textContent = usdValue.toString();
-                }
-            });
-        }
-
-        function initializeChart() {
-            const ctx = document.getElementById('profitChart');
-            if (!ctx) return;
-
-            // Sample data for demo
-            const sampleData = {
-                labels: ['Ngày 1', 'Ngày 5', 'Ngày 10', 'Ngày 15', 'Ngày 20', 'Ngày 25', 'Ngày 31'],
+        // P&L Chart
+        const pnlCtx = document.getElementById('pnlChart').getContext('2d');
+        new Chart(pnlCtx, {
+            type: 'line',
+            data: {
+                labels: ['05-06', '05-07', '05-08', '05-09', '05-10', '05-13', '05-14', '05-15', '05-16', '05-17'],
                 datasets: [{
-                    label: 'P&L Tích Lũy (USD)',
-                    data: [0, 25, 45, 78, 120, 145, 166.87],
+                    label: 'P&L ($)',
+                    data: [12.5, -8.2, 15.8, 3.2, -5.1, 8.7, -3.4, 11.2, 6.8, -2.1],
                     borderColor: '#667eea',
                     backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    borderWidth: 3,
                     fill: true,
                     tension: 0.4
                 }]
-            };
-
-            profitChart = new Chart(ctx, {
-                type: 'line',
-                data: sampleData,
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                        },
-                        title: {
-                            display: true,
-                            text: 'Biểu Đồ P&L Tích Lũy Theo Thời Gian'
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0,0,0,0.1)'
                         }
                     },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                callback: function(value) {
-                                    return '$' + value.toLocaleString();
-                                }
-                            }
+                    x: {
+                        grid: {
+                            color: 'rgba(0,0,0,0.1)'
                         }
                     }
                 }
-            });
-        }
-
-        function showAlert(message, type) {
-            const alertId = type === 'success' ? 'successAlert' : 'errorAlert';
-            const alertElement = document.getElementById(alertId);
-            
-            alertElement.textContent = message;
-            alertElement.style.display = 'block';
-            
-            setTimeout(() => {
-                alertElement.style.display = 'none';
-            }, 5000);
-        }
-
-        function showLoading(show) {
-            document.getElementById('loading').style.display = show ? 'block' : 'none';
-        }
-
-        function downloadTemplate() {
-            // Create sample MEXC template
-            const templateData = [
-                ['Tiêu đề Chỉ số', 'Số tiền (USD)', 'Số tiền ước tính (VND)', 'Số tiền thực tế (VND)', 'Phần trăm %'],
-                ['THEO DÕI VỐN', '', '', '', ''],
-                ['Vốn ban đầu (Ngày đầu tiên có vốn)', '1000', '24000000', '24000000', ''],
-                ['Tổng Vốn Nạp', '1500', '36000000', '36000000', ''],
-                ['Tổng Vốn Rút', '-200', '-4800000', '-4800000', ''],
-                ['Tổng Lãi/Lỗ Ròng', '150', '3600000', '', ''],
-                ['Tổng Vốn Hiện Tại', '1450', '34800000', '34800000', ''],
-                ['Lợi nhuận trên Tổng vốn (ROC)', '', '', '', '0.15'],
-                ['HIỆU SUẤT TỔNG QUAN', '', '', '', ''],
-                ['Số ngày có dữ liệu', '30', '', '', ''],
-                ['Số ngày có giao dịch', '15', '', '', ''],
-                ['Tổng lệnh thực hiện', '100', '', '', ''],
-                ['Tỷ lệ thắng (%)', '', '', '', '0.8']
-            ];
-
-            const ws = XLSX.utils.aoa_to_sheet(templateData);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, 'MEXC Trading Summary');
-            
-            XLSX.writeFile(wb, 'MEXC_Trading_Template.xlsx');
-            showAlert('Đã tải xuống template MEXC thành công!', 'success');
-        }
-
-        function exportAnalysis() {
-            // Export current analysis to Excel
-            const analysisData = [
-                ['MEXC Trading Analysis Report', '', '', '', ''],
-                ['Ngày xuất báo cáo:', new Date().toLocaleDateString('vi-VN'), '', '', ''],
-                ['', '', '', '', ''],
-                ['Chỉ Số', 'Giá Trị (USD)', 'Giá Trị (VND)', 'Phần Trăm', 'Đánh Giá'],
-                ['Tổng Lãi', '183.16', '4762097', '91.11%', 'Xuất sắc'],
-                ['Tổng Lỗ', '-10.92', '-283809', '5.96%', 'Kiểm soát tốt'],
-                ['Phí Giao Dịch', '-5.37', '-139658', '2.93%', 'Hợp lý'],
-                ['Hệ Số Lợi Nhuận', '16.78%', '', '', 'Rất tốt'],
-                ['ROC (Return on Capital)', '9.24%', '', '', 'Ấn tượng']
-            ];
-
-            const ws = XLSX.utils.aoa_to_sheet(analysisData);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, 'Analysis Report');
-            
-            const fileName = `MEXC_Analysis_${new Date().toISOString().split('T')[0]}.xlsx`;
-            XLSX.writeFile(wb, fileName);
-            showAlert('Đã xuất báo cáo phân tích thành công!', 'success');
-        }
+            }
+        });
+        
+        // Exchange Distribution Chart
+        const exchangeCtx = document.getElementById('exchangeChart').getContext('2d');
+        new Chart(exchangeCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['BingX P&L', 'MEXC P&L'],
+                datasets: [{
+                    data: [79.8, 60.05],
+                    backgroundColor: ['#667eea', '#f6ad55'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            usePointStyle: true
+                        }
+                    }
+                }
+            }
+        });
     </script>
 </body>
 </html>
