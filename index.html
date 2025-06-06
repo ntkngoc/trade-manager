@@ -3,418 +3,193 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trading Dashboard - Tổng Quan</title>
+    <title>MEXC Trading Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            color: #333;
-        }
-        
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        
-        .header {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 30px;
-            margin-bottom: 30px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            text-align: center;
-        }
-        
-        .header h1 {
-            font-size: 2.5em;
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 10px;
-        }
-        
-        .nav-menu {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            flex-wrap: wrap;
-            margin-top: 20px;
-        }
-        
-        .nav-btn {
-            padding: 12px 24px;
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            color: white;
-            text-decoration: none;
-            border-radius: 25px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .nav-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-        }
-        
-        .nav-btn.active {
-            background: linear-gradient(45deg, #4CAF50, #45a049);
-        }
-        
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 25px;
-            margin-bottom: 30px;
-        }
-        
-        .stat-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 30px 60px rgba(0,0,0,0.15);
-        }
-        
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(45deg, #667eea, #764ba2);
-        }
-        
-        .stat-icon {
-            font-size: 2.5em;
-            margin-bottom: 15px;
-            color: #667eea;
-        }
-        
-        .stat-value {
-            font-size: 2.2em;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-        
-        .stat-label {
-            color: #666;
-            font-size: 1.1em;
-            margin-bottom: 10px;
-        }
-        
-        .stat-change {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-weight: 600;
-        }
-        
-        .positive { color: #4CAF50; }
-        .negative { color: #f44336; }
-        
-        .charts-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
-            gap: 25px;
-            margin-bottom: 30px;
-        }
-        
-        .chart-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            min-height: 400px;
-        }
-        
-        .chart-title {
-            font-size: 1.4em;
-            font-weight: 600;
-            margin-bottom: 20px;
-            color: #333;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .summary-table {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            overflow-x: auto;
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        
-        th, td {
-            padding: 15px;
-            text-align: left;
-            border-bottom: 1px solid #eee;
-        }
-        
-        th {
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            color: white;
-            font-weight: 600;
-        }
-        
-        tr:hover {
-            background: rgba(102, 126, 234, 0.05);
-        }
-        
-        .last-updated {
-            text-align: center;
-            color: #666;
-            font-style: italic;
-            margin-top: 20px;
-        }
-        
-        @media (max-width: 768px) {
-            .charts-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .nav-menu {
-                flex-direction: column;
-                align-items: center;
-            }
-            
-            .header h1 {
-                font-size: 2em;
-            }
-        }
-    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1><i class="fas fa-chart-line"></i> Trading Dashboard</h1>
-            <p>Hệ thống theo dõi và phân tích giao dịch tự động</p>
-            
-            <div class="nav-menu">
-                <a href="#" class="nav-btn active"><i class="fas fa-home"></i> Tổng Quan</a>
-                <a href="bingx.html" class="nav-btn"><i class="fas fa-exchange-alt"></i> BingX</a>
-                <a href="mexc.html" class="nav-btn"><i class="fas fa-coins"></i> MEXC</a>
-                <a href="analytics.html" class="nav-btn"><i class="fas fa-chart-bar"></i> Analytics</a>
-                <a href="risk.html" class="nav-btn"><i class="fas fa-shield-alt"></i> Risk</a>
-                <a href="portfolio.html" class="nav-btn"><i class="fas fa-briefcase"></i> Portfolio</a>
-                <a href="settings.html" class="nav-btn"><i class="fas fa-cog"></i> Settings</a>
-            </div>
+            <h1><i class="fas fa-chart-line"></i> MEXC Trading Dashboard</h1>
+            <p>Phân tích chi tiết hoạt động giao dịch</p>
         </div>
-        
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-icon"><i class="fas fa-dollar-sign"></i></div>
-                <div class="stat-value positive">$139.85</div>
-                <div class="stat-label">Tổng P&L</div>
-                <div class="stat-change positive">
-                    <i class="fas fa-arrow-up"></i> +8.5%
+
+        <!-- Import Excel Section -->
+        <div class="import-section" id="importSection">
+            <div class="import-card">
+                <div class="import-header">
+                    <i class="fas fa-file-excel"></i>
+                    <h2>Import File Excel</h2>
+                    <p>Chọn file Excel để phân tích dữ liệu giao dịch</p>
                 </div>
-            </div>
-            
-            <div class="stat-card">
-                <div class="stat-icon"><i class="fas fa-exchange-alt"></i></div>
-                <div class="stat-value">435</div>
-                <div class="stat-label">Tổng giao dịch</div>
-                <div class="stat-change positive">
-                    <i class="fas fa-arrow-up"></i> +12 giao dịch
-                </div>
-            </div>
-            
-            <div class="stat-card">
-                <div class="stat-icon"><i class="fas fa-credit-card"></i></div>
-                <div class="stat-value negative">$52.30</div>
-                <div class="stat-label">Tổng phí</div>
-                <div class="stat-change negative">
-                    <i class="fas fa-arrow-down"></i> -2.3%
-                </div>
-            </div>
-            
-            <div class="stat-card">
-                <div class="stat-icon"><i class="fas fa-calendar-alt"></i></div>
-                <div class="stat-value">35</div>
-                <div class="stat-label">Tổng ngày giao dịch</div>
-                <div class="stat-change positive">
-                    <i class="fas fa-arrow-up"></i> +5 ngày
+                
+                <div class="file-upload-area" id="fileUploadArea">
+                    <div class="upload-content">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <h3>Kéo thả file Excel vào đây</h3>
+                        <p>hoặc</p>
+                        <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+                            <i class="fas fa-folder-open"></i> Chọn file
+                        </button>
+                        <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" style="display: none;">
+                        <div class="file-info">
+                            <small>Hỗ trợ: .xlsx, .xls, .csv</small>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        
-        <div class="charts-grid">
-            <div class="chart-card">
-                <div class="chart-title">
-                    <i class="fas fa-chart-line"></i>
-                    P&L theo thời gian
-                </div>
-                <canvas id="pnlChart" width="400" height="200"></canvas>
-            </div>
-            
-            <div class="chart-card">
-                <div class="chart-title">
-                    <i class="fas fa-chart-pie"></i>
-                    Phân bổ P&L theo Exchange
-                </div>
-                <canvas id="exchangeChart" width="400" height="200"></canvas>
-            </div>
+
+        <div class="loading" id="loading" style="display: none;">
+            <i class="fas fa-spinner"></i>
+            <p>Đang xử lý dữ liệu...</p>
         </div>
-        
-        <div class="summary-table">
-            <div class="chart-title">
-                <i class="fas fa-table"></i>
-                Tóm tắt giao dịch gần đây
+
+        <div id="dashboard" style="display: none;">
+            <!-- Nút import mới -->
+            <div class="dashboard-header">
+                <button class="import-new-btn" id="importNewBtn">
+                    <i class="fas fa-file-import"></i> Import file mới
+                </button>
+                <div class="file-info-display" id="fileInfoDisplay"></div>
             </div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Ngày</th>
-                        <th>Exchange</th>
-                        <th>P&L</th>
-                        <th>Số giao dịch</th>
-                        <th>Trạng thái</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>2025-05-17</td>
-                        <td>MEXC</td>
-                        <td class="negative">-$2.10</td>
-                        <td>8</td>
-                        <td><span style="color: #f44336;">📉 Loss</span></td>
-                    </tr>
-                    <tr>
-                        <td>2025-05-16</td>
-                        <td>MEXC</td>
-                        <td class="positive">+$6.80</td>
-                        <td>15</td>
-                        <td><span style="color: #4CAF50;">📈 Profit</span></td>
-                    </tr>
-                    <tr>
-                        <td>2025-05-15</td>
-                        <td>MEXC</td>
-                        <td class="positive">+$11.20</td>
-                        <td>25</td>
-                        <td><span style="color: #4CAF50;">📈 Profit</span></td>
-                    </tr>
-                    <tr>
-                        <td>2025-05-10</td>
-                        <td>BingX</td>
-                        <td class="negative">-$5.10</td>
-                        <td>4</td>
-                        <td><span style="color: #f44336;">📉 Loss</span></td>
-                    </tr>
-                    <tr>
-                        <td>2025-05-08</td>
-                        <td>BingX</td>
-                        <td class="positive">+$15.80</td>
-                        <td>12</td>
-                        <td><span style="color: #4CAF50;">📈 Profit</span></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        
-        <div class="last-updated">
-            <i class="fas fa-clock"></i> Cập nhật lần cuối: 2025-05-28 15:12:00
+
+            <!-- Bộ lọc -->
+            <div class="filters">
+                <div class="filter-group">
+                    <label>Loại giao dịch:</label>
+                    <select id="transactionTypeFilter">
+                        <option value="">Tất cả</option>
+                    </select>
+                    
+                    <label>Cặp giao dịch:</label>
+                    <select id="tradingPairFilter">
+                        <option value="">Tất cả</option>
+                    </select>
+                    
+                    <label>Từ ngày:</label>
+                    <input type="date" id="dateFromFilter">
+                    
+                    <label>Đến ngày:</label>
+                    <input type="date" id="dateToFilter">
+
+                    <button class="reset-filter-btn" id="resetFilters">
+                        <i class="fas fa-undo"></i> Reset
+                    </button>
+                </div>
+            </div>
+
+            <!-- Thống kê tổng quan -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="icon profit"><i class="fas fa-coins"></i></div>
+                    <div class="value" id="totalProfit">0</div>
+                    <div class="label">Tổng Lãi/Lỗ (USDT)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="icon neutral"><i class="fas fa-exchange-alt"></i></div>
+                    <div class="value" id="totalTransactions">0</div>
+                    <div class="label">Tổng số giao dịch</div>
+                </div>
+                <div class="stat-card">
+                    <div class="icon loss"><i class="fas fa-receipt"></i></div>
+                    <div class="value" id="totalFees">0</div>
+                    <div class="label">Tổng phí (USDT)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="icon neutral"><i class="fas fa-calendar-alt"></i></div>
+                    <div class="value" id="tradingDays">0</div>
+                    <div class="label">Số ngày giao dịch</div>
+                </div>
+                <div class="stat-card">
+                    <div class="icon neutral"><i class="fas fa-percentage"></i></div>
+                    <div class="value" id="winRate">0%</div>
+                    <div class="label">Tỷ lệ thắng</div>
+                </div>
+                <div class="stat-card">
+                    <div class="icon neutral"><i class="fas fa-chart-line"></i></div>
+                    <div class="value" id="avgProfit">0</div>
+                    <div class="label">Lãi TB/giao dịch</div>
+                </div>
+            </div>
+
+            <!-- Charts Grid -->
+            <div class="charts-grid">
+                <div class="chart-container">
+                    <h3><i class="fas fa-chart-line"></i> Lãi/Lỗ hàng ngày</h3>
+                    <canvas id="profitChart"></canvas>
+                </div>
+
+                <div class="chart-container">
+                    <h3><i class="fas fa-chart-pie"></i> Phân loại giao dịch</h3>
+                    <canvas id="transactionTypeChart"></canvas>
+                </div>
+
+                <div class="chart-container">
+                    <h3><i class="fas fa-chart-bar"></i> Top cặp giao dịch</h3>
+                    <canvas id="topPairsChart"></canvas>
+                </div>
+
+                <div class="chart-container">
+                    <h3><i class="fas fa-chart-area"></i> Lãi/Lỗ tích lũy</h3>
+                    <canvas id="cumulativeProfitChart"></canvas>
+                </div>
+
+                <div class="chart-container">
+                    <h3><i class="fas fa-calendar-day"></i> Lợi nhuận theo ngày</h3>
+                    <canvas id="dailyProfitChart"></canvas>
+                </div>
+
+                <div class="chart-container">
+                    <h3><i class="fas fa-clock"></i> Hoạt động theo giờ</h3>
+                    <canvas id="hourlyActivityChart"></canvas>
+                </div>
+
+                <div class="chart-container">
+                    <h3><i class="fas fa-coins"></i> Phí giao dịch</h3>
+                    <canvas id="feeChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Bảng giao dịch chi tiết -->
+            <div class="table-container">
+                <div class="table-header">
+                    <h3><i class="fas fa-table"></i> Chi tiết giao dịch</h3>
+                    <div class="table-controls">
+                        <input type="text" id="searchInput" placeholder="Tìm kiếm...">
+                        <select id="pageSize">
+                            <option value="50">50 dòng</option>
+                            <option value="100" selected>100 dòng</option>
+                            <option value="200">200 dòng</option>
+                        </select>
+                        <button id="exportBtn" class="export-btn">
+                            <i class="fas fa-download"></i> Xuất Excel
+                        </button>
+                    </div>
+                </div>
+                <div class="table-content">
+                    <table id="transactionsTable">
+                        <thead>
+                            <tr>
+                                <th onclick="sortTable(0)">Thời gian <i class="fas fa-sort"></i></th>
+                                <th onclick="sortTable(1)">Cặp giao dịch <i class="fas fa-sort"></i></th>
+                                <th onclick="sortTable(2)">Loại <i class="fas fa-sort"></i></th>
+                                <th onclick="sortTable(3)">Số tiền <i class="fas fa-sort"></i></th>
+                                <th onclick="sortTable(4)">Lãi/Lỗ <i class="fas fa-sort"></i></th>
+                                <th onclick="sortTable(5)">Phí <i class="fas fa-sort"></i></th>
+                                <th onclick="sortTable(6)">Tổng <i class="fas fa-sort"></i></th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+                <div class="pagination" id="pagination"></div>
+            </div>
         </div>
     </div>
-    
-    <script>
-        // P&L Chart
-        const pnlCtx = document.getElementById('pnlChart').getContext('2d');
-        new Chart(pnlCtx, {
-            type: 'line',
-            data: {
-                labels: ['05-06', '05-07', '05-08', '05-09', '05-10', '05-13', '05-14', '05-15', '05-16', '05-17'],
-                datasets: [{
-                    label: 'P&L ($)',
-                    data: [12.5, -8.2, 15.8, 3.2, -5.1, 8.7, -3.4, 11.2, 6.8, -2.1],
-                    borderColor: '#667eea',
-                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
-                    borderWidth: 3,
-                    fill: true,
-                    tension: 0.4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: {
-                            color: 'rgba(0,0,0,0.1)'
-                        }
-                    },
-                    x: {
-                        grid: {
-                            color: 'rgba(0,0,0,0.1)'
-                        }
-                    }
-                }
-            }
-        });
-        
-        // Exchange Distribution Chart
-        const exchangeCtx = document.getElementById('exchangeChart').getContext('2d');
-        new Chart(exchangeCtx, {
-            type: 'doughnut',
-            data: {
-                labels: ['BingX P&L', 'MEXC P&L'],
-                datasets: [{
-                    data: [79.8, 60.05],
-                    backgroundColor: ['#667eea', '#f6ad55'],
-                    borderWidth: 0
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            padding: 20,
-                            usePointStyle: true
-                        }
-                    }
-                }
-            }
-        });
-    </script>
+
+    <script src="script.js"></script>
 </body>
 </html>
