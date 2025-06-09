@@ -3,193 +3,116 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MEXC Trading Dashboard</title>
+    <title>Trading Dashboard - MEXC</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1><i class="fas fa-chart-line"></i> MEXC Trading Dashboard</h1>
-            <p>Phân tích chi tiết hoạt động giao dịch</p>
+            <h1>📊 Trading Dashboard MEXC</h1>
+            <p>Phân tích chi tiết lịch sử giao dịch và hiệu suất trading</p>
         </div>
-
-        <!-- Import Excel Section -->
-        <div class="import-section" id="importSection">
-            <div class="import-card">
-                <div class="import-header">
-                    <i class="fas fa-file-excel"></i>
-                    <h2>Import File Excel</h2>
-                    <p>Chọn file Excel để phân tích dữ liệu giao dịch</p>
-                </div>
-                
-                <div class="file-upload-area" id="fileUploadArea">
-                    <div class="upload-content">
-                        <i class="fas fa-cloud-upload-alt"></i>
-                        <h3>Kéo thả file Excel vào đây</h3>
-                        <p>hoặc</p>
-                        <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
-                            <i class="fas fa-folder-open"></i> Chọn file
-                        </button>
-                        <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" style="display: none;">
-                        <div class="file-info">
-                            <small>Hỗ trợ: .xlsx, .xls, .csv</small>
-                        </div>
-                    </div>
-                </div>
+        
+        <div class="import-section">
+            <h3>📁 Import File Excel</h3>
+            <p style="margin: 10px 0; color: #666;">Chọn file Excel chứa dữ liệu lịch sử giao dịch để bắt đầu phân tích</p>
+            <div class="file-input-wrapper">
+                <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" />
+                📄 Chọn File Excel
             </div>
+            <div id="fileStatus"></div>
         </div>
-
-        <div class="loading" id="loading" style="display: none;">
-            <i class="fas fa-spinner"></i>
-            <p>Đang xử lý dữ liệu...</p>
-        </div>
-
+        
         <div id="dashboard" style="display: none;">
-            <!-- Nút import mới -->
-            <div class="dashboard-header">
-                <button class="import-new-btn" id="importNewBtn">
-                    <i class="fas fa-file-import"></i> Import file mới
-                </button>
-                <div class="file-info-display" id="fileInfoDisplay"></div>
-            </div>
-
-            <!-- Bộ lọc -->
-            <div class="filters">
-                <div class="filter-group">
-                    <label>Loại giao dịch:</label>
-                    <select id="transactionTypeFilter">
-                        <option value="">Tất cả</option>
-                    </select>
-                    
-                    <label>Cặp giao dịch:</label>
-                    <select id="tradingPairFilter">
-                        <option value="">Tất cả</option>
-                    </select>
-                    
-                    <label>Từ ngày:</label>
-                    <input type="date" id="dateFromFilter">
-                    
-                    <label>Đến ngày:</label>
-                    <input type="date" id="dateToFilter">
-
-                    <button class="reset-filter-btn" id="resetFilters">
-                        <i class="fas fa-undo"></i> Reset
-                    </button>
-                </div>
-            </div>
-
-            <!-- Thống kê tổng quan -->
             <div class="stats-grid">
                 <div class="stat-card">
-                    <div class="icon profit"><i class="fas fa-coins"></i></div>
-                    <div class="value" id="totalProfit">0</div>
-                    <div class="label">Tổng Lãi/Lỗ (USDT)</div>
+                    <h3>Tổng Giao Dịch</h3>
+                    <div class="value" id="totalTrades">0</div>
                 </div>
                 <div class="stat-card">
-                    <div class="icon neutral"><i class="fas fa-exchange-alt"></i></div>
-                    <div class="value" id="totalTransactions">0</div>
-                    <div class="label">Tổng số giao dịch</div>
+                    <h3>Tổng PNL</h3>
+                    <div class="value" id="totalPNL">0 USDT</div>
                 </div>
                 <div class="stat-card">
-                    <div class="icon loss"><i class="fas fa-receipt"></i></div>
-                    <div class="value" id="totalFees">0</div>
-                    <div class="label">Tổng phí (USDT)</div>
-                </div>
-                <div class="stat-card">
-                    <div class="icon neutral"><i class="fas fa-calendar-alt"></i></div>
-                    <div class="value" id="tradingDays">0</div>
-                    <div class="label">Số ngày giao dịch</div>
-                </div>
-                <div class="stat-card">
-                    <div class="icon neutral"><i class="fas fa-percentage"></i></div>
+                    <h3>Tỷ Lệ Thắng</h3>
                     <div class="value" id="winRate">0%</div>
-                    <div class="label">Tỷ lệ thắng</div>
                 </div>
                 <div class="stat-card">
-                    <div class="icon neutral"><i class="fas fa-chart-line"></i></div>
-                    <div class="value" id="avgProfit">0</div>
-                    <div class="label">Lãi TB/giao dịch</div>
+                    <h3>Lợi Nhuận Trung Bình</h3>
+                    <div class="value" id="avgProfit">0 USDT</div>
                 </div>
             </div>
-
-            <!-- Charts Grid -->
+            
+            <div class="filter-section">
+                <label>Lọc theo cặp:</label>
+                <select id="pairFilter">
+                    <option value="">Tất cả</option>
+                </select>
+                <label>Lọc theo hướng:</label>
+                <select id="directionFilter">
+                    <option value="">Tất cả</option>
+                    <option value="Long">Long</option>
+                    <option value="Short">Short</option>
+                </select>
+                <label>Từ ngày:</label>
+                <input type="date" id="dateFrom">
+                <label>Đến ngày:</label>
+                <input type="date" id="dateTo">
+            </div>
+            
             <div class="charts-grid">
                 <div class="chart-container">
-                    <h3><i class="fas fa-chart-line"></i> Lãi/Lỗ hàng ngày</h3>
-                    <canvas id="profitChart"></canvas>
+                    <h3>📈 PNL Theo Thời Gian</h3>
+                    <canvas id="pnlChart"></canvas>
                 </div>
-
                 <div class="chart-container">
-                    <h3><i class="fas fa-chart-pie"></i> Phân loại giao dịch</h3>
-                    <canvas id="transactionTypeChart"></canvas>
+                    <h3>🥧 Phân Bố Theo Cặp Giao Dịch</h3>
+                    <canvas id="pairChart"></canvas>
                 </div>
-
                 <div class="chart-container">
-                    <h3><i class="fas fa-chart-bar"></i> Top cặp giao dịch</h3>
-                    <canvas id="topPairsChart"></canvas>
+                    <h3>📊 Long vs Short</h3>
+                    <canvas id="directionChart"></canvas>
                 </div>
-
                 <div class="chart-container">
-                    <h3><i class="fas fa-chart-area"></i> Lãi/Lỗ tích lũy</h3>
-                    <canvas id="cumulativeProfitChart"></canvas>
-                </div>
-
-                <div class="chart-container">
-                    <h3><i class="fas fa-calendar-day"></i> Lợi nhuận theo ngày</h3>
-                    <canvas id="dailyProfitChart"></canvas>
-                </div>
-
-                <div class="chart-container">
-                    <h3><i class="fas fa-clock"></i> Hoạt động theo giờ</h3>
-                    <canvas id="hourlyActivityChart"></canvas>
-                </div>
-
-                <div class="chart-container">
-                    <h3><i class="fas fa-coins"></i> Phí giao dịch</h3>
-                    <canvas id="feeChart"></canvas>
+                    <h3>💰 PNL Theo Cặp</h3>
+                    <canvas id="pnlByPairChart"></canvas>
                 </div>
             </div>
-
-            <!-- Bảng giao dịch chi tiết -->
+            
             <div class="table-container">
                 <div class="table-header">
-                    <h3><i class="fas fa-table"></i> Chi tiết giao dịch</h3>
-                    <div class="table-controls">
-                        <input type="text" id="searchInput" placeholder="Tìm kiếm...">
-                        <select id="pageSize">
-                            <option value="50">50 dòng</option>
-                            <option value="100" selected>100 dòng</option>
-                            <option value="200">200 dòng</option>
-                        </select>
-                        <button id="exportBtn" class="export-btn">
-                            <i class="fas fa-download"></i> Xuất Excel
-                        </button>
-                    </div>
+                    <h3>📋 Chi Tiết Giao Dịch</h3>
                 </div>
-                <div class="table-content">
-                    <table id="transactionsTable">
+                <div class="table-wrapper">
+                    <table id="tradesTable">
                         <thead>
                             <tr>
-                                <th onclick="sortTable(0)">Thời gian <i class="fas fa-sort"></i></th>
-                                <th onclick="sortTable(1)">Cặp giao dịch <i class="fas fa-sort"></i></th>
-                                <th onclick="sortTable(2)">Loại <i class="fas fa-sort"></i></th>
-                                <th onclick="sortTable(3)">Số tiền <i class="fas fa-sort"></i></th>
-                                <th onclick="sortTable(4)">Lãi/Lỗ <i class="fas fa-sort"></i></th>
-                                <th onclick="sortTable(5)">Phí <i class="fas fa-sort"></i></th>
-                                <th onclick="sortTable(6)">Tổng <i class="fas fa-sort"></i></th>
+                                <th>Cặp Giao Dịch</th>
+                                <th>Thời Gian Mở</th>
+                                <th>Thời Gian Đóng</th>
+                                <th>Hướng</th>
+                                <th>Giá Mở</th>
+                                <th>Giá Đóng</th>
+                                <th>Số Lượng</th>
+                                <th>PNL</th>
+                                <th>Phí</th>
                             </tr>
                         </thead>
                         <tbody></tbody>
                     </table>
                 </div>
-                <div class="pagination" id="pagination"></div>
             </div>
         </div>
+        
+        <div id="noData" class="no-data">
+            <h3>📊 Chưa có dữ liệu</h3>
+            <p>Vui lòng import file Excel để bắt đầu phân tích</p>
+        </div>
     </div>
-
+    
     <script src="script.js"></script>
 </body>
 </html>
