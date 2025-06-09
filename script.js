@@ -1,4 +1,3 @@
-
 let tradingData = [];
 let filteredData = [];
 let charts = {};
@@ -163,12 +162,31 @@ function updateStats() {
     const winRate = totalTrades > 0 ? (winningTrades / totalTrades * 100) : 0;
     const avgProfit = totalTrades > 0 ? (totalPNL / totalTrades) : 0;
     
+    // Calculate peak trading hours and days
+    const hourlyActivity = {};
+    const dailyActivity = {};
+    
+    filteredData.forEach(trade => {
+        const hour = trade.openTime.getHours();
+        const day = trade.openTime.toLocaleDateString('vi-VN', { weekday: 'long' });
+        
+        hourlyActivity[hour] = (hourlyActivity[hour] || 0) + 1;
+        dailyActivity[day] = (dailyActivity[day] || 0) + 1;
+    });
+    
+    const peakHour = Object.keys(hourlyActivity).reduce((a, b) => 
+        hourlyActivity[a] > hourlyActivity[b] ? a : b, '0');
+    const peakDay = Object.keys(dailyActivity).reduce((a, b) => 
+        dailyActivity[a] > dailyActivity[b] ? a : b, 'Không có');
+    
     document.getElementById('totalTrades').textContent = totalTrades.toLocaleString();
     document.getElementById('totalPNL').textContent = totalPNL.toFixed(2) + ' USDT';
     document.getElementById('totalPNL').className = totalPNL >= 0 ? 'value positive' : 'value negative';
     document.getElementById('winRate').textContent = winRate.toFixed(1) + '%';
     document.getElementById('avgProfit').textContent = avgProfit.toFixed(2) + ' USDT';
     document.getElementById('avgProfit').className = avgProfit >= 0 ? 'value positive' : 'value negative';
+    document.getElementById('peakHour').textContent = peakHour + ':00';
+    document.getElementById('peakDay').textContent = peakDay;
 }
 
 function updateCharts() {
@@ -184,6 +202,10 @@ function updateCharts() {
     createPairChart();
     createDirectionChart();
     createPNLByPairChart();
+    createHourlyChart();
+    createWeeklyChart();
+    createMonthlyChart();
+    createHeatmapChart();
 }
 
 function createPNLChart() {
@@ -329,6 +351,249 @@ function createPNLByPairChart() {
                     title: {
                         display: true,
                         text: 'PNL (USDT)'
+                    }
+                }
+            }
+        }
+    });
+}
+
+function createHourlyChart() {
+    const ctx = document.getElementById('hourlyChart');
+    if (!ctx) return;
+    
+    const hourlyData = {};
+    for (let i = 0; i < 24; i++) {
+        hourlyData[i] = 0;
+    }
+    
+    filteredData.forEach(trade => {
+        const hour = trade.openTime.getHours();
+        hourlyData[hour]++;
+    });
+    
+    const hours = Object.keys(hourlyData).map(h => h + ':00');
+    const counts = Object.values(hourlyData);
+    
+    charts.hourlyChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: hours,
+            datasets: [{
+                label: 'Số Giao Dịch',
+                data: counts,
+                backgroundColor: 'rgba(102, 126, 234, 0.8)',
+                borderColor: '#667eea',
+                borderWidth: 1,
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Số Giao Dịch'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Giờ trong ngày'
+                    }
+                }
+            }
+        }
+    });
+}
+
+function createWeeklyChart() {
+    const ctx = document.getElementById('weeklyChart');
+    if (!ctx) return;
+    
+    const weekDays = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
+    const weeklyData = {};
+    weekDays.forEach(day => weeklyData[day] = 0);
+    
+    filteredData.forEach(trade => {
+        const dayIndex = trade.openTime.getDay();
+        const dayName = weekDays[dayIndex];
+        weeklyData[dayName]++;
+    });
+    
+    charts.weeklyChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: weekDays,
+            datasets: [{
+                data: weekDays.map(day => weeklyData[day]),
+                backgroundColor: [
+                    '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', 
+                    '#9966FF', '#FF9F40', '#FF6384'
+                ],
+                borderWidth: 2,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+}
+
+function createMonthlyChart() {
+    const ctx = document.getElementById('monthlyChart');
+    if (!ctx) return;
+    
+    const monthlyData = {};
+    const monthNames = [
+        'Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6',
+        'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'
+    ];
+    
+    filteredData.forEach(trade => {
+        const month = trade.openTime.getMonth();
+        const monthName = monthNames[month];
+        monthlyData[monthName] = (monthlyData[monthName] || 0) + 1;
+    });
+    
+    const labels = Object.keys(monthlyData);
+    const data = Object.values(monthlyData);
+    
+    charts.monthlyChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Số Giao Dịch',
+                data: data,
+                borderColor: '#764ba2',
+                backgroundColor: 'rgba(118, 75, 162, 0.1)',
+                fill: true,
+                tension: 0.4,
+                pointBackgroundColor: '#764ba2',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                pointRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Số Giao Dịch'
+                    }
+                }
+            }
+        }
+    });
+}
+
+function createHeatmapChart() {
+    const ctx = document.getElementById('heatmapChart');
+    if (!ctx) return;
+    
+    // Create heatmap data (Hour vs Day of Week)
+    const heatmapData = [];
+    const weekDays = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+    
+    // Initialize data structure
+    for (let day = 0; day < 7; day++) {
+        for (let hour = 0; hour < 24; hour++) {
+            heatmapData.push({
+                x: hour,
+                y: day,
+                v: 0
+            });
+        }
+    }
+    
+    // Fill with actual data
+    filteredData.forEach(trade => {
+        const hour = trade.openTime.getHours();
+        const day = trade.openTime.getDay();
+        const index = day * 24 + hour;
+        if (heatmapData[index]) {
+            heatmapData[index].v++;
+        }
+    });
+    
+    const maxValue = Math.max(...heatmapData.map(d => d.v));
+    
+    charts.heatmapChart = new Chart(ctx, {
+        type: 'scatter',
+        data: {
+            datasets: [{
+                label: 'Hoạt Động Trading',
+                data: heatmapData,
+                backgroundColor: function(context) {
+                    const value = context.parsed.v || 0;
+                    const intensity = value / maxValue;
+                    return `rgba(102, 126, 234, ${intensity})`;
+                },
+                borderColor: '#667eea',
+                borderWidth: 1,
+                pointRadius: function(context) {
+                    const value = context.parsed.v || 0;
+                    return Math.max(3, (value / maxValue) * 15);
+                }
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                x: {
+                    type: 'linear',
+                    position: 'bottom',
+                    min: 0,
+                    max: 23,
+                    ticks: {
+                        stepSize: 1,
+                        callback: function(value) {
+                            return value + ':00';
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: 'Giờ trong ngày'
+                    }
+                },
+                y: {
+                    type: 'linear',
+                    min: 0,
+                    max: 6,
+                    ticks: {
+                        stepSize: 1,
+                        callback: function(value) {
+                            return weekDays[value];
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: 'Ngày trong tuần'
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        title: function(context) {
+                            const point = context[0];
+                            return `${weekDays[point.parsed.y]} - ${point.parsed.x}:00`;
+                        },
+                        label: function(context) {
+                            return `Số giao dịch: ${context.parsed.v}`;
+                        }
                     }
                 }
             }
