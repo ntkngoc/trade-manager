@@ -218,103 +218,341 @@ function updateStats() {
 }
 
 function updateAdvancedStats() {
-    const metrics = calculateAdvancedMetrics();
-    
-    document.getElementById('sharpeRatio').textContent = metrics.sharpeRatio.toFixed(2);
-    document.getElementById('maxDrawdown').textContent = metrics.maxDrawdown.toFixed(1) + '%';
-    document.getElementById('profitFactor').textContent = metrics.profitFactor.toFixed(2);
-    document.getElementById('riskReward').textContent = metrics.riskRewardRatio.toFixed(2);
-    document.getElementById('maxWinStreak').textContent = metrics.streaks.maxWinStreak;
-    document.getElementById('maxLossStreak').textContent = metrics.streaks.maxLossStreak;
+    try {
+        const metrics = calculateAdvancedMetrics();
+        
+        // Update UI with proper formatting and error handling
+        const sharpeElement = document.getElementById('sharpeRatio');
+        const drawdownElement = document.getElementById('maxDrawdown');
+        const profitFactorElement = document.getElementById('profitFactor');
+        const riskRewardElement = document.getElementById('riskReward');
+        const winStreakElement = document.getElementById('maxWinStreak');
+        const lossStreakElement = document.getElementById('maxLossStreak');
+        
+        if (sharpeElement) {
+            sharpeElement.textContent = isFinite(metrics.sharpeRatio) ? 
+                metrics.sharpeRatio.toFixed(2) : '--';
+        }
+        
+        if (drawdownElement) {
+            drawdownElement.textContent = isFinite(metrics.maxDrawdown) ? 
+                metrics.maxDrawdown.toFixed(1) + '%' : '--%';
+        }
+        
+        if (profitFactorElement) {
+            profitFactorElement.textContent = isFinite(metrics.profitFactor) ? 
+                metrics.profitFactor.toFixed(2) : '--';
+        }
+        
+        if (riskRewardElement) {
+            riskRewardElement.textContent = isFinite(metrics.riskRewardRatio) ? 
+                '1:' + metrics.riskRewardRatio.toFixed(2) : '--';
+        }
+        
+        if (winStreakElement) {
+            winStreakElement.textContent = metrics.streaks.maxWinStreak || 0;
+        }
+        
+        if (lossStreakElement) {
+            lossStreakElement.textContent = metrics.streaks.maxLossStreak || 0;
+        }
+        
+        // Update additional displays
+        updateProfitBreakdown(metrics);
+        updateRiskRewardVisual(metrics.riskRewardRatio);
+        
+    } catch (error) {
+        console.error('Error updating advanced stats:', error);
+        resetAdvancedStatsDisplay();
+    }
 }
 
 function calculateAdvancedMetrics() {
-    const returns = calculateDailyReturns();
-    const sharpeRatio = calculateSharpeRatio(returns);
-    const maxDrawdown = calculateMaxDrawdown();
-    const profitFactor = calculateProfitFactor();
-    const riskRewardRatio = calculateRiskRewardRatio();
-    const streaks = calculateStreaks();
+    // Validate input data
+    if (!filteredData || filteredData.length === 0) {
+        return getDefaultMetrics();
+    }
     
-    return {
-        sharpeRatio,
-        maxDrawdown,
-        profitFactor,
-        riskRewardRatio,
-        streaks
-    };
+    try {
+        const returns = calculateDailyReturns();
+        const sharpeRatio = calculateSharpeRatio(returns);
+        const maxDrawdown = calculateMaxDrawdown();
+        const profitFactor = calculateProfitFactor();
+        const riskRewardRatio = calculateRiskRewardRatio();
+        const streaks = calculateStreaks();
+        
+        return {
+            sharpeRatio: isFinite(sharpeRatio) ? sharpeRatio : 0,
+            maxDrawdown: isFinite(maxDrawdown) ? maxDrawdown : 0,
+            profitFactor: isFinite(profitFactor) ? profitFactor : 0,
+            riskRewardRatio: isFinite(riskRewardRatio) ? riskRewardRatio : 0,
+            streaks: streaks,
+            returns: returns
+        };
+    } catch (error) {
+        console.error('Error calculating advanced metrics:', error);
+        return getDefaultMetrics();
+    }
 }
 
 function calculateDailyReturns() {
-    const dailyPNL = {};
-    filteredData.forEach(trade => {
-        const date = trade.closeTime.toISOString().split('T')[0];
-        dailyPNL[date] = (dailyPNL[date] || 0) + trade.pnl;
-    });
-    return Object.values(dailyPNL);
+    try {
+        const dailyPNL = {};
+        
+        filteredData.forEach(trade => {
+            // Ensure we have valid close time
+            const closeTime = trade.closeTime || trade.openTime;
+            if (!closeTime || !(closeTime instanceof Date)) {
+                console.warn('Invalid date in trade:', trade);
+                return;
+            }
+            
+            const date = closeTime.toISOString().split('T')[0];
+            dailyPNL[date] = (dailyPNL[date] || 0) + (trade.pnl || 0);
+        });
+        
+        const returns = Object.values(dailyPNL).filter(val => isFinite(val));
+        return returns.length > 0 ? returns : [0];
+        
+    } catch (error) {
+        console.error('Error calculating daily returns:', error);
+        return [0];
+    }
 }
 
 function calculateSharpeRatio(returns) {
-    if (returns.length === 0) return 0;
-    const avgReturn = returns.reduce((a, b) => a + b, 0) / returns.length;
-    const stdDev = Math.sqrt(returns.reduce((sq, n) => sq + Math.pow(n - avgReturn, 2), 0) / returns.length);
-    return stdDev === 0 ? 0 : (avgReturn / stdDev) * Math.sqrt(252);
+    try {
+        if (!returns || returns.length < 2) return 0;
+        
+        // Remove any non-finite values
+        const validReturns = returns.filter(r => isFinite(r));
+        if (validReturns.length < 2) return 0;
+        
+        const avgReturn = validReturns.reduce((a, b) => a + b, 0) / validReturns.length;
+        
+        // Calculate standard deviation
+        const variance = validReturns.reduce((sq, n) => {
+            return sq + Math.pow(n - avgReturn, 2);
+        }, 0) / validReturns.length;
+        
+        const stdDev = Math.sqrt(variance);
+        
+        if (stdDev === 0) return avgReturn > 0 ? 999 : 0;
+        
+        // For trading, we typically don't annualize or use risk-free rate
+        // Simple Sharpe = Average Return / Standard Deviation
+        const sharpe = avgReturn / stdDev;
+        
+        // Optional: Annualize if needed (assuming daily returns)
+        // return sharpe * Math.sqrt(252);
+        
+        return sharpe;
+        
+    } catch (error) {
+        console.error('Error calculating Sharpe ratio:', error);
+        return 0;
+    }
 }
 
 function calculateMaxDrawdown() {
-    let peak = 0;
-    let maxDD = 0;
-    let cumPNL = 0;
-    
-    const sortedData = [...filteredData].sort((a, b) => a.closeTime - b.closeTime);
-    
-    sortedData.forEach(trade => {
-        cumPNL += trade.pnl;
-        if (cumPNL > peak) peak = cumPNL;
-        const drawdown = peak - cumPNL;
-        if (drawdown > maxDD) maxDD = drawdown;
-    });
-    
-    return peak === 0 ? 0 : (maxDD / peak) * 100;
+    try {
+        if (!filteredData || filteredData.length === 0) return 0;
+        
+        let peak = 0;
+        let maxDD = 0;
+        let cumPNL = 0;
+        
+        // Sort by close time (or open time if close time not available)
+        const sortedData = [...filteredData].sort((a, b) => {
+            const timeA = a.closeTime || a.openTime;
+            const timeB = b.closeTime || b.openTime;
+            return timeA - timeB;
+        });
+        
+        sortedData.forEach(trade => {
+            const pnl = trade.pnl || 0;
+            cumPNL += pnl;
+            
+            if (cumPNL > peak) {
+                peak = cumPNL;
+            }
+            
+            const drawdown = peak - cumPNL;
+            if (drawdown > maxDD) {
+                maxDD = drawdown;
+            }
+        });
+        
+        // Return as percentage
+        if (peak <= 0) return 0;
+        return (maxDD / Math.abs(peak)) * 100;
+        
+    } catch (error) {
+        console.error('Error calculating max drawdown:', error);
+        return 0;
+    }
 }
 
 function calculateProfitFactor() {
-    const profits = filteredData.filter(t => t.pnl > 0).reduce((sum, t) => sum + t.pnl, 0);
-    const losses = Math.abs(filteredData.filter(t => t.pnl < 0).reduce((sum, t) => sum + t.pnl, 0));
-    return losses === 0 ? profits : profits / losses;
+    try {
+        if (!filteredData || filteredData.length === 0) return 0;
+        
+        const profits = filteredData
+            .filter(t => t.pnl > 0)
+            .reduce((sum, t) => sum + t.pnl, 0);
+            
+        const losses = Math.abs(filteredData
+            .filter(t => t.pnl < 0)
+            .reduce((sum, t) => sum + t.pnl, 0));
+        
+        if (losses === 0) {
+            return profits > 0 ? 999 : 0; // Infinite profit factor
+        }
+        
+        const pf = profits / losses;
+        return isFinite(pf) ? pf : 0;
+        
+    } catch (error) {
+        console.error('Error calculating profit factor:', error);
+        return 0;
+    }
 }
 
 function calculateRiskRewardRatio() {
-    const wins = filteredData.filter(t => t.pnl > 0);
-    const losses = filteredData.filter(t => t.pnl < 0);
-    
-    const avgWin = wins.length > 0 ? wins.reduce((sum, t) => sum + t.pnl, 0) / wins.length : 0;
-    const avgLoss = losses.length > 0 ? Math.abs(losses.reduce((sum, t) => sum + t.pnl, 0) / losses.length) : 0;
-    
-    return avgLoss === 0 ? avgWin : avgWin / avgLoss;
+    try {
+        if (!filteredData || filteredData.length === 0) return 0;
+        
+        const wins = filteredData.filter(t => t.pnl > 0);
+        const losses = filteredData.filter(t => t.pnl < 0);
+        
+        if (wins.length === 0 || losses.length === 0) return 0;
+        
+        const avgWin = wins.reduce((sum, t) => sum + t.pnl, 0) / wins.length;
+        const avgLoss = Math.abs(losses.reduce((sum, t) => sum + t.pnl, 0) / losses.length);
+        
+        if (avgLoss === 0) return avgWin > 0 ? 999 : 0;
+        
+        const rr = avgWin / avgLoss;
+        return isFinite(rr) ? rr : 0;
+        
+    } catch (error) {
+        console.error('Error calculating risk reward ratio:', error);
+        return 0;
+    }
 }
 
 function calculateStreaks() {
-    let currentWinStreak = 0;
-    let currentLossStreak = 0;
-    let maxWinStreak = 0;
-    let maxLossStreak = 0;
+    try {
+        if (!filteredData || filteredData.length === 0) {
+            return { maxWinStreak: 0, maxLossStreak: 0 };
+        }
+        
+        let currentWinStreak = 0;
+        let currentLossStreak = 0;
+        let maxWinStreak = 0;
+        let maxLossStreak = 0;
+        
+        // Sort by close time or open time
+        const sortedData = [...filteredData].sort((a, b) => {
+            const timeA = a.closeTime || a.openTime;
+            const timeB = b.closeTime || b.openTime;
+            return timeA - timeB;
+        });
+        
+        sortedData.forEach(trade => {
+            const pnl = trade.pnl || 0;
+            
+            if (pnl > 0) {
+                currentWinStreak++;
+                currentLossStreak = 0;
+                maxWinStreak = Math.max(maxWinStreak, currentWinStreak);
+            } else if (pnl < 0) {
+                currentLossStreak++;
+                currentWinStreak = 0;
+                maxLossStreak = Math.max(maxLossStreak, currentLossStreak);
+            }
+            // If pnl === 0, we don't change streaks
+        });
+        
+        return { 
+            maxWinStreak: maxWinStreak || 0, 
+            maxLossStreak: maxLossStreak || 0 
+        };
+        
+    } catch (error) {
+        console.error('Error calculating streaks:', error);
+        return { maxWinStreak: 0, maxLossStreak: 0 };
+    }
+}
+
+// Helper functions
+function getDefaultMetrics() {
+    return {
+        sharpeRatio: 0,
+        maxDrawdown: 0,
+        profitFactor: 0,
+        riskRewardRatio: 0,
+        streaks: { maxWinStreak: 0, maxLossStreak: 0 },
+        returns: []
+    };
+}
+
+function resetAdvancedStatsDisplay() {
+    const elements = [
+        'sharpeRatio', 'maxDrawdown', 'profitFactor', 
+        'riskReward', 'maxWinStreak', 'maxLossStreak'
+    ];
     
-    const sortedData = [...filteredData].sort((a, b) => a.closeTime - b.closeTime);
-    
-    sortedData.forEach(trade => {
-        if (trade.pnl > 0) {
-            currentWinStreak++;
-            currentLossStreak = 0;
-            maxWinStreak = Math.max(maxWinStreak, currentWinStreak);
-        } else {
-            currentLossStreak++;
-            currentWinStreak = 0;
-            maxLossStreak = Math.max(maxLossStreak, currentLossStreak);
+    elements.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.textContent = '--';
         }
     });
-    
-    return { maxWinStreak, maxLossStreak };
+}
+
+function updateProfitBreakdown(metrics) {
+    try {
+        const totalProfitElement = document.getElementById('totalProfit');
+        const totalLossElement = document.getElementById('totalLoss');
+        
+        if (totalProfitElement && totalLossElement) {
+            const profits = filteredData
+                .filter(t => t.pnl > 0)
+                .reduce((sum, t) => sum + t.pnl, 0);
+                
+            const losses = filteredData
+                .filter(t => t.pnl < 0)
+                .reduce((sum, t) => sum + t.pnl, 0);
+            
+            totalProfitElement.textContent = '+' + profits.toFixed(2);
+            totalLossElement.textContent = losses.toFixed(2);
+        }
+    } catch (error) {
+        console.error('Error updating profit breakdown:', error);
+    }
+}
+
+function updateRiskRewardVisual(riskReward) {
+    try {
+        const rrRisk = document.querySelector('.rr-risk');
+        const rrReward = document.querySelector('.rr-reward');
+        
+        if (rrRisk && rrReward && isFinite(riskReward) && riskReward > 0) {
+            // Adjust flex ratio based on risk-reward
+            const totalRatio = 1 + riskReward;
+            const riskFlex = 1 / totalRatio;
+            const rewardFlex = riskReward / totalRatio;
+            
+            rrRisk.style.flex = riskFlex;
+            rrReward.style.flex = rewardFlex;
+            
+            rrRisk.textContent = 'Risk: 1';
+            rrReward.textContent = `Reward: ${riskReward.toFixed(1)}`;
+        }
+    } catch (error) {
+        console.error('Error updating risk-reward visual:', error);
+    }
 }
 
 function updateCharts() {
