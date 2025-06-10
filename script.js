@@ -1385,4 +1385,305 @@ function debugDataProcessing(rawData) {
     console.log('=== END DEBUG ===');
 }
 
+// Table variables
+let currentPage = 1;
+let pageSize = 25;
+let sortColumn = 'closeTime';
+let sortDirection = 'desc';
+let searchTerm = '';
+
+// Initialize table event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    // Existing code...
+    
+    // Table event listeners
+    const tableSearch = document.getElementById('tableSearch');
+    const pageSizeSelect = document.getElementById('pageSize');
+    
+    if (tableSearch) {
+        tableSearch.addEventListener('input', function() {
+            searchTerm = this.value.toLowerCase();
+            currentPage = 1;
+            updateTable();
+        });
+    }
+    
+    if (pageSizeSelect) {
+        pageSizeSelect.addEventListener('change', function() {
+            pageSize = parseInt(this.value);
+            currentPage = 1;
+            updateTable();
+        });
+    }
+    
+    // Add table header click listeners
+    setTimeout(() => {
+        const sortableHeaders = document.querySelectorAll('.trading-table th.sortable');
+        sortableHeaders.forEach(header => {
+            header.addEventListener('click', function() {
+                const column = this.dataset.sort;
+                if (sortColumn === column) {
+                    sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+                } else {
+                    sortColumn = column;
+                    sortDirection = 'desc';
+                }
+                updateSortIcons();
+                updateTable();
+            });
+        });
+    }, 100);
+});
+
+function updateTable() {
+    if (!filteredData || filteredData.length === 0) {
+        document.getElementById('tableBody').innerHTML = `
+            <tr>
+                <td colspan="10" style="text-align: center; padding: 40px; color: #666;">
+                    📊 Không có dữ liệu để hiển thị
+                </td>
+            </tr>
+        `;
+        document.getElementById('paginationInfo').textContent = 'Hiển thị 0 - 0 của 0 giao dịch';
+        return;
+    }
+    
+    // Filter data based on search
+    let tableData = filteredData.filter(trade => {
+        if (!searchTerm) return true;
+        return (
+            trade.pair.toLowerCase().includes(searchTerm) ||
+            trade.direction.toLowerCase().includes(searchTerm) ||
+            formatCurrency(trade.pnl).toLowerCase().includes(searchTerm)
+        );
+    });
+    
+    // Sort data
+    tableData.sort((a, b) => {
+        let aVal = a[sortColumn];
+        let bVal = b[sortColumn];
+        
+        // Handle different data types
+        if (sortColumn === 'openTime' || sortColumn === 'closeTime') {
+            aVal = new Date(aVal);
+            bVal = new Date(bVal);
+        } else if (typeof aVal === 'string') {
+            aVal = aVal.toLowerCase();
+            bVal = bVal.toLowerCase();
+        }
+        
+        if (aVal < bVal) return sortDirection === 'asc' ? -1 : 1;
+        if (aVal > bVal) return sortDirection === 'asc' ? 1 : -1;
+        return 0;
+    });
+    
+    // Pagination
+    const totalItems = tableData.length;
+    const totalPages = Math.ceil(totalItems / pageSize);
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = Math.min(startIndex + pageSize, totalItems);
+    const pageData = tableData.slice(startIndex, endIndex);
+    
+    // Generate table rows
+    const tableBody = document.getElementById('tableBody');
+    tableBody.innerHTML = pageData.map(trade => `
+        <tr>
+            <td class="pair-cell">${trade.pair}</td>
+            <td>
+                <span class="direction-cell direction-${trade.direction.toLowerCase()}">
+                    ${trade.direction === 'LONG' ? '📈' : '📉'} ${trade.direction}
+                </span>
+            </td>
+            <td>${formatDateTime(trade.openTime)}</td>
+            <td>${formatDateTime(trade.closeTime)}</td>
+            <td class="text-right">${formatNumber(trade.quantity)}</td>
+            <td class="text-right">${formatPrice(trade.openPrice)}</td>
+            <td class="text-right">${formatPrice(trade.closePrice)}</td>
+            <td class="text-right">
+                <span class="pnl-cell ${trade.pnl >= 0 ? 'pnl-positive' : 'pnl-negative'}">
+                    ${trade.pnl >= 0 ? '📈' : '📉'} ${formatCurrency(trade.pnl)}
+                </span>
+            </td>
+            <td class="text-right">${formatCurrency(trade.fee || 0)}</td>
+            <td>
+                <span class="status-cell ${trade.pnl >= 0 ? 'status-profit' : 'status-loss'}">
+                    ${trade.pnl >= 0 ? '✅ Lãi' : '❌ Lỗ'}
+                </span>
+            </td>
+        </tr>
+    `).join('');
+    
+    // Update pagination info
+    document.getElementById('paginationInfo').textContent = 
+        `Hiển thị ${startIndex + 1} - ${endIndex} của ${totalItems} giao dịch`;
+    
+    // Update pagination controls
+    updatePaginationControls(totalPages);
+}
+
+function updateSortIcons() {
+    const headers = document.querySelectorAll('.trading-table th.sortable');
+    headers.forEach(header => {
+        const icon = header.querySelector('.sort-icon');
+        if (header.dataset.sort === sortColumn) {
+            icon.textContent = sortDirection === 'asc' ? '↑' : '↓';
+            header.style.background = 'rgba(255, 255, 255, 0.1)';
+        } else {
+            icon.textContent = '↕️';
+            header.style.background = '';
+        }
+    });
+}
+
+function updatePaginationControls(totalPages) {
+    const prevBtn = document.getElementById('prevPage');
+    const nextBtn = document.getElementById('nextPage');
+    const pageNumbers = document.getElementById('pageNumbers');
+    
+    // Update prev/next buttons
+    prevBtn.disabled = currentPage <= 1;
+    nextBtn.disabled = currentPage >= totalPages;
+    
+    // Generate page numbers
+    let pageNumbersHTML = '';
+    const maxVisiblePages = 5;
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+    
+    if (endPage - startPage + 1 < maxVisiblePages) {
+        startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+    
+    if (startPage > 1) {
+        pageNumbersHTML += `<span class="page-number" onclick="goToPage(1)">1</span>`;
+        if (startPage > 2) {
+            pageNumbersHTML += `<span class="page-ellipsis">...</span>`;
+        }
+    }
+    
+    for (let i = startPage; i <= endPage; i++) {
+        pageNumbersHTML += `
+            <span class="page-number ${i === currentPage ? 'active' : ''}" 
+                  onclick="goToPage(${i})">${i}</span>
+        `;
+    }
+    
+    if (endPage < totalPages) {
+        if (endPage < totalPages - 1) {
+            pageNumbersHTML += `<span class="page-ellipsis">...</span>`;
+        }
+        pageNumbersHTML += `<span class="page-number" onclick="goToPage(${totalPages})">${totalPages}</span>`;
+    }
+    
+    pageNumbers.innerHTML = pageNumbersHTML;
+}
+
+function changePage(direction) {
+    const totalPages = Math.ceil(filteredData.length / pageSize);
+    currentPage = Math.max(1, Math.min(totalPages, currentPage + direction));
+    updateTable();
+}
+
+function goToPage(page) {
+    currentPage = page;
+    updateTable();
+}
+
+// Export functions
+function exportTableToExcel() {
+    const tableData = filteredData.map(trade => ({
+        'Cặp': trade.pair,
+        'Hướng': trade.direction,
+        'Thời Gian Mở': formatDateTime(trade.openTime),
+        'Thời Gian Đóng': formatDateTime(trade.closeTime),
+        'Số Lượng': trade.quantity,
+        'Giá Vào': trade.entryPrice,
+        'Giá Ra': trade.exitPrice,
+        'PNL (USDT)': trade.pnl,
+        'Phí': trade.fee || 0
+    }));
+    
+    const ws = XLSX.utils.json_to_sheet(tableData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Trading History");
+    
+    const fileName = `trading_history_${new Date().toISOString().split('T')[0]}.xlsx`;
+    XLSX.writeFile(wb, fileName);
+}
+
+function exportTableToPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('l', 'mm', 'a4'); // landscape orientation
+    
+    // Add title
+    doc.setFontSize(16);
+    doc.text('Lịch Sử Giao Dịch', 20, 20);
+    
+    // Add date
+    doc.setFontSize(10);
+    doc.text(`Xuất ngày: ${new Date().toLocaleDateString('vi-VN')}`, 20, 30);
+    
+    // Prepare table data
+    const tableData = filteredData.map(trade => [
+        trade.pair,
+        trade.direction,
+        formatDateTime(trade.openTime),
+        formatDateTime(trade.closeTime),
+        formatNumber(trade.quantity),
+        formatPrice(trade.entryPrice),
+        formatPrice(trade.exitPrice),
+        formatCurrency(trade.pnl),
+        formatCurrency(trade.fee || 0)
+    ]);
+    
+    // Add table
+    doc.autoTable({
+        head: [['Cặp', 'Hướng', 'Mở', 'Đóng', 'Số Lượng', 'Giá Vào', 'Giá Ra', 'PNL', 'Phí']],
+        body: tableData,
+        startY: 40,
+        styles: { fontSize: 8 },
+        headStyles: { fillColor: [102, 126, 234] }
+    });
+    
+    const fileName = `trading_history_${new Date().toISOString().split('T')[0]}.pdf`;
+    doc.save(fileName);
+}
+
+// Utility functions
+function formatDateTime(date) {
+    if (!date) return '--';
+    return new Date(date).toLocaleString('vi-VN', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+
+function formatNumber(num) {
+    if (num === undefined || num === null) return '--';
+    return parseFloat(num).toLocaleString('vi-VN', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 8
+    });
+}
+
+function formatPrice(price) {
+    if (price === undefined || price === null) return '--';
+    return parseFloat(price).toLocaleString('vi-VN', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 8
+    });
+}
+
+function formatCurrency(amount) {
+    if (amount === undefined || amount === null) return '0 USDT';
+    return parseFloat(amount).toLocaleString('vi-VN', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    }) + ' USDT';
+}
+
+
 console.log('Trading Dashboard initialized successfully!');

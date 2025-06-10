@@ -199,32 +199,96 @@
                 <div id="recommendationsList"></div>
             </div>
             
-            <!-- Trading Table -->
-            <div class="table-container">
-                <div class="table-header">
-                    <h3>📋 Chi Tiết Giao Dịch</h3>
-                </div>
-                <div class="table-wrapper">
-                    <table id="tradingTable">
-                        <thead>
-                            <tr>
-                                <th>Cặp</th>
-                                <th>Thời gian mở</th>
-                                <th>Thời gian đóng</th>
-                                <th>Hướng</th>
-                                <th>Giá mở</th>
-                                <th>Giá đóng</th>
-                                <th>Số lượng</th>
-                                <th>PNL</th>
-                                <th>Phí</th>
-                                <th>Trạng thái</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tableBody">
-                        </tbody>
-                    </table>
+            <!-- Trading Table Section -->
+<div class="table-section">
+    <div class="table-header">
+        <h2 class="section-title">
+            <span class="title-icon">📋</span>
+            Lịch Sử Giao Dịch
+            <span class="title-decoration"></span>
+        </h2>
+        
+        <div class="table-controls">
+            <div class="search-box">
+                <input type="text" id="tableSearch" placeholder="🔍 Tìm kiếm..." />
+            </div>
+            <div class="table-actions">
+                <select id="pageSize">
+                    <option value="10">10 dòng</option>
+                    <option value="25" selected>25 dòng</option>
+                    <option value="50">50 dòng</option>
+                    <option value="100">100 dòng</option>
+                </select>
+                <button class="btn-export" onclick="exportTableToExcel()">
+                    📊 Export Excel
+                </button>
+                <button class="btn-export" onclick="exportTableToPDF()">
+                    📄 Export PDF
+                </button>
+            </div>
+        </div>
+    </div>
+    
+                <div class="table-container">
+                    <div class="table-wrapper">
+                        <table id="tradingTable" class="trading-table">
+                            <thead>
+                                <tr>
+                                    <th data-sort="pair" class="sortable">
+                                        Cặp <span class="sort-icon">↕️</span>
+                                    </th>
+                                    <th data-sort="direction" class="sortable">
+                                        Hướng <span class="sort-icon">↕️</span>
+                                    </th>
+                                    <th data-sort="openTime" class="sortable">
+                                        Thời Gian Mở <span class="sort-icon">↕️</span>
+                                    </th>
+                                    <th data-sort="closeTime" class="sortable">
+                                        Thời Gian Đóng <span class="sort-icon">↕️</span>
+                                    </th>
+                                    <th data-sort="quantity" class="sortable text-right">
+                                        Số Lượng <span class="sort-icon">↕️</span>
+                                    </th>
+                                    <th data-sort="entryPrice" class="sortable text-right">
+                                        Giá Vào <span class="sort-icon">↕️</span>
+                                    </th>
+                                    <th data-sort="exitPrice" class="sortable text-right">
+                                        Giá Ra <span class="sort-icon">↕️</span>
+                                    </th>
+                                    <th data-sort="pnl" class="sortable text-right">
+                                        PNL (USDT) <span class="sort-icon">↕️</span>
+                                    </th>
+                                    <th data-sort="fee" class="sortable text-right">
+                                        Phí <span class="sort-icon">↕️</span>
+                                    </th>
+                                    <th>Trạng Thái</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableBody">
+                                <!-- Data will be inserted here -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="table-pagination">
+                        <div class="pagination-info">
+                            <span id="paginationInfo">Hiển thị 0 - 0 của 0 giao dịch</span>
+                        </div>
+                        <div class="pagination-controls">
+                            <button id="prevPage" class="btn-page" onclick="changePage(-1)">
+                                ← Trước
+                            </button>
+                            <div id="pageNumbers" class="page-numbers">
+                                <!-- Page numbers will be inserted here -->
+                            </div>
+                            <button id="nextPage" class="btn-page" onclick="changePage(1)">
+                                Sau →
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
+
         </div>
         
         <div id="noData" class="no-data" style="display: none;">
