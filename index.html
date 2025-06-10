@@ -3,17 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trading Dashboard - MEXC</title>
+    <title>Trading Dashboard Pro - MEXC</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>📊 Trading Dashboard MEXC</h1>
+            <h1>📈 Trading Dashboard Pro MEXC</h1>
             <p>Phân tích chi tiết lịch sử giao dịch và hiệu suất trading</p>
+            <div class="theme-toggle">
+                <button id="themeToggle" onclick="toggleTheme()">🌙</button>
+            </div>
         </div>
         
         <div class="import-section">
@@ -27,6 +32,7 @@
         </div>
         
         <div id="dashboard" style="display: none;">
+            <!-- Basic Stats -->
             <div class="stats-grid">
                 <div class="stat-card">
                     <h3>Tổng Giao Dịch</h3>
@@ -54,6 +60,41 @@
                 </div>
             </div>
             
+            <!-- Advanced Stats -->
+            <div class="advanced-stats-grid">
+                <div class="stat-card advanced">
+                    <h3>Sharpe Ratio</h3>
+                    <div class="value" id="sharpeRatio">--</div>
+                    <div class="stat-description">Chỉ số rủi ro/lợi nhuận</div>
+                </div>
+                <div class="stat-card advanced">
+                    <h3>Max Drawdown</h3>
+                    <div class="value" id="maxDrawdown">--%</div>
+                    <div class="stat-description">Mức sụt giảm tối đa</div>
+                </div>
+                <div class="stat-card advanced">
+                    <h3>Profit Factor</h3>
+                    <div class="value" id="profitFactor">--</div>
+                    <div class="stat-description">Tỷ lệ lãi/lỗ</div>
+                </div>
+                <div class="stat-card advanced">
+                    <h3>Risk/Reward</h3>
+                    <div class="value" id="riskReward">--</div>
+                    <div class="stat-description">Tỷ lệ rủi ro/phần thưởng</div>
+                </div>
+                <div class="stat-card advanced">
+                    <h3>Chuỗi Thắng Tối Đa</h3>
+                    <div class="value" id="maxWinStreak">--</div>
+                    <div class="stat-description">Số lần thắng liên tiếp</div>
+                </div>
+                <div class="stat-card advanced">
+                    <h3>Chuỗi Thua Tối Đa</h3>
+                    <div class="value" id="maxLossStreak">--</div>
+                    <div class="stat-description">Số lần thua liên tiếp</div>
+                </div>
+            </div>
+            
+            <!-- Filters -->
             <div class="filter-section">
                 <label>Lọc theo cặp:</label>
                 <select id="pairFilter">
@@ -71,68 +112,122 @@
                 <input type="date" id="dateTo">
             </div>
             
-            <div class="charts-grid">
-                <div class="chart-container">
-                    <h3>📈 PNL Theo Thời Gian</h3>
-                    <canvas id="pnlChart"></canvas>
-                </div>
-                <div class="chart-container">
-                    <h3>🥧 Phân Bố Theo Cặp Giao Dịch</h3>
-                    <canvas id="pairChart"></canvas>
-                </div>
-                <div class="chart-container">
-                    <h3>📊 Long vs Short</h3>
-                    <canvas id="directionChart"></canvas>
-                </div>
-                <div class="chart-container">
-                    <h3>💰 PNL Theo Cặp</h3>
-                    <canvas id="pnlByPairChart"></canvas>
-                </div>
-                <div class="chart-container">
-                    <h3>🕐 Hoạt Động Theo Giờ</h3>
-                    <canvas id="hourlyChart"></canvas>
-                </div>
-                <div class="chart-container">
-                    <h3>📅 Hoạt Động Theo Ngày Trong Tuần</h3>
-                    <canvas id="weeklyChart"></canvas>
-                </div>
-                <div class="chart-container">
-                    <h3>📊 Hoạt Động Theo Tháng</h3>
-                    <canvas id="monthlyChart"></canvas>
-                </div>
-                <div class="chart-container">
-                    <h3>🔥 Heatmap Hoạt Động</h3>
-                    <canvas id="heatmapChart"></canvas>
-                </div>
+            <!-- Export Buttons -->
+            <div class="export-section">
+                <button class="export-btn" onclick="exportToPDF()">
+                    📄 Xuất PDF
+                </button>
+                <button class="export-btn" onclick="exportToExcel()">
+                    📊 Xuất Excel
+                </button>
+                <button class="export-btn" onclick="shareReport()">
+                    🔗 Chia sẻ
+                </button>
             </div>
             
+            <!-- Charts -->
+            <div class="charts-grid">
+                <!-- PNL Chart -->
+                <div class="chart-card">
+                    <h3>📈 PNL Tích Lũy Theo Thời Gian</h3>
+                    <div class="chart-container pnl-chart-container">
+                        <canvas id="pnlChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Pair Distribution -->
+                <div class="chart-card">
+                    <h3>🎯 Phân Bố Cặp Giao Dịch</h3>
+                    <div class="chart-container pair-chart-container">
+                        <canvas id="pairChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Direction Analysis -->
+                <div class="chart-card">
+                    <h3>📊 Phân Tích Long/Short</h3>
+                    <div class="chart-container direction-chart-container">
+                        <canvas id="directionChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- PNL by Pair -->
+                <div class="chart-card">
+                    <h3>💰 PNL Theo Cặp</h3>
+                    <div class="chart-container">
+                        <canvas id="pnlByPairChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Hourly Activity -->
+                <div class="chart-card">
+                    <h3>⏰ Hoạt Động Theo Giờ</h3>
+                    <div class="chart-container hourly-chart-container">
+                        <canvas id="hourlyChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Weekly Pattern -->
+                <div class="chart-card">
+                    <h3>📅 Mẫu Hình Theo Tuần</h3>
+                    <div class="chart-container weekly-chart-container">
+                        <canvas id="weeklyChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Monthly Performance -->
+                <div class="chart-card">
+                    <h3>📆 Hiệu Suất Theo Tháng</h3>
+                    <div class="chart-container monthly-chart-container">
+                        <canvas id="monthlyChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Calendar Heatmap -->
+                <div class="chart-card">
+                    <h3>🗓️ Lịch Nhiệt PNL</h3>
+                    <div class="chart-container calendar-heatmap-container">
+                        <canvas id="calendarHeatmap"></canvas>
+                    </div>
+                </div>
+
+            </div>
+            
+            <!-- Recommendations -->
+            <div class="recommendations-section" id="recommendations">
+                <h3>💡 Phân Tích & Khuyến Nghị</h3>
+                <div id="recommendationsList"></div>
+            </div>
+            
+            <!-- Trading Table -->
             <div class="table-container">
                 <div class="table-header">
                     <h3>📋 Chi Tiết Giao Dịch</h3>
                 </div>
                 <div class="table-wrapper">
-                    <table id="tradesTable">
+                    <table id="tradingTable">
                         <thead>
                             <tr>
-                                <th>Cặp Giao Dịch</th>
-                                <th>Thời Gian Mở</th>
-                                <th>Thời Gian Đóng</th>
+                                <th>Cặp</th>
+                                <th>Thời gian mở</th>
+                                <th>Thời gian đóng</th>
                                 <th>Hướng</th>
-                                <th>Giá Mở</th>
-                                <th>Giá Đóng</th>
-                                <th>Số Lượng</th>
+                                <th>Giá mở</th>
+                                <th>Giá đóng</th>
+                                <th>Số lượng</th>
                                 <th>PNL</th>
                                 <th>Phí</th>
+                                <th>Trạng thái</th>
                             </tr>
                         </thead>
-                        <tbody></tbody>
+                        <tbody id="tableBody">
+                        </tbody>
                     </table>
                 </div>
             </div>
         </div>
         
-        <div id="noData" class="no-data">
-            <h3>📊 Chưa có dữ liệu</h3>
+        <div id="noData" class="no-data" style="display: none;">
             <p>Vui lòng import file Excel để bắt đầu phân tích</p>
         </div>
     </div>

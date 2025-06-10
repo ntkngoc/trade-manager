@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Test Import</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body>
+    <h1>Test Import Excel</h1>
+    <input type="file" id="testFile" accept=".xlsx,.xls,.csv" />
+    <div id="result"></div>
+    
+    <script>
+        document.getElementById('testFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, {type: 'array'});
+                const sheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[sheetName];
+                const jsonData = XLSX.utils.sheet_to_json(worksheet);
+                
+                console.log('Data:', jsonData);
+                document.getElementById('result').innerHTML = `
+                    <h3>Kết quả:</h3>
+                    <p>Số dòng: ${jsonData.length}</p>
+                    <p>Cột có sẵn: ${Object.keys(jsonData[0] || {}).join(', ')}</p>
+                    <pre>${JSON.stringify(jsonData[0], null, 2)}</pre>
+                `;
+            };
+            
+            reader.readAsArrayBuffer(file);
+        });
+    </script>
+</body>
+</html>
