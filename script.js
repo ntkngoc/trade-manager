@@ -1685,5 +1685,4 @@ function formatCurrency(amount) {
     }) + ' USDT';
 }
 
-
 console.log('Trading Dashboard initialized successfully!');

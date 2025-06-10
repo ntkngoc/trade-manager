@@ -32,67 +32,239 @@
         </div>
         
         <div id="dashboard" style="display: none;">
-            <!-- Basic Stats -->
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <h3>Tổng Giao Dịch</h3>
-                    <div class="value" id="totalTrades">0</div>
-                </div>
-                <div class="stat-card">
-                    <h3>Tổng PNL</h3>
-                    <div class="value" id="totalPNL">0 USDT</div>
-                </div>
-                <div class="stat-card">
-                    <h3>Tỷ Lệ Thắng</h3>
-                    <div class="value" id="winRate">0%</div>
-                </div>
-                <div class="stat-card">
-                    <h3>Lợi Nhuận Trung Bình</h3>
-                    <div class="value" id="avgProfit">0 USDT</div>
-                </div>
-                <div class="stat-card">
-                    <h3>Giờ Hoạt Động Cao Nhất</h3>
-                    <div class="value" id="peakHour">--:--</div>
-                </div>
-                <div class="stat-card">
-                    <h3>Ngày Hoạt Động Nhiều Nhất</h3>
-                    <div class="value" id="peakDay">---</div>
+            <!-- Stats Section - Nâng cấp giao diện -->
+<div class="stats-section">
+    <div class="section-header">
+        <h2>📊 Thống Kê Tổng Quan</h2>
+        <p>Phân tích hiệu suất giao dịch của bạn</p>
+    </div>
+    
+    <div class="stats-grid">
+        <div class="stat-card primary">
+            <div class="stat-icon">
+                <i class="icon-trades">📈</i>
+            </div>
+            <div class="stat-content">
+                <h3>Tổng Giao Dịch</h3>
+                <div class="value" id="totalTrades">0</div>
+                <div class="stat-change">
+                    <span class="change-indicator">+0%</span>
+                    <span class="change-text">so với tháng trước</span>
                 </div>
             </div>
-            
-            <!-- Advanced Stats -->
-            <div class="advanced-stats-grid">
-                <div class="stat-card advanced">
+        </div>
+        
+        <div class="stat-card success">
+            <div class="stat-icon">
+                <i class="icon-pnl">💰</i>
+            </div>
+            <div class="stat-content">
+                <h3>Tổng PNL</h3>
+                <div class="value" id="totalPNL">0 USDT</div>
+                <div class="stat-change">
+                    <span class="change-indicator">+0%</span>
+                    <span class="change-text">tăng trưởng</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="stat-card info">
+            <div class="stat-icon">
+                <i class="icon-winrate">🎯</i>
+            </div>
+            <div class="stat-content">
+                <h3>Tỷ Lệ Thắng</h3>
+                <div class="value" id="winRate">0%</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="winRateProgress"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="stat-card warning">
+            <div class="stat-icon">
+                <i class="icon-avg">⚖️</i>
+            </div>
+            <div class="stat-content">
+                <h3>Lợi Nhuận TB</h3>
+                <div class="value" id="avgProfit">0 USDT</div>
+                <div class="stat-change">
+                    <span class="change-indicator">+0%</span>
+                    <span class="change-text">mỗi giao dịch</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="stat-card secondary">
+            <div class="stat-icon">
+                <i class="icon-time">🕐</i>
+            </div>
+            <div class="stat-content">
+                <h3>Giờ Hoạt Động Cao Nhất</h3>
+                <div class="value" id="peakHour">--:--</div>
+                <div class="stat-change">
+                    <span class="change-text">khung giờ vàng</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="stat-card accent">
+            <div class="stat-icon">
+                <i class="icon-calendar">📅</i>
+            </div>
+            <div class="stat-content">
+                <h3>Ngày Hoạt Động Nhiều Nhất</h3>
+                <div class="value" id="peakDay">---</div>
+                <div class="stat-change">
+                    <span class="change-text">trong tuần</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Advanced Stats Section - Nâng cấp -->
+<div class="advanced-stats-section">
+    <div class="section-header">
+        <h2>🚀 Phân Tích Nâng Cao</h2>
+        <p>Các chỉ số chuyên sâu về hiệu suất giao dịch</p>
+    </div>
+    
+    <div class="advanced-stats-grid">
+        <div class="advanced-stat-card">
+            <div class="stat-header">
+                <div class="stat-icon-advanced">📊</div>
+                <div class="stat-title">
                     <h3>Sharpe Ratio</h3>
-                    <div class="value" id="sharpeRatio">--</div>
-                    <div class="stat-description">Chỉ số rủi ro/lợi nhuận</div>
-                </div>
-                <div class="stat-card advanced">
-                    <h3>Max Drawdown</h3>
-                    <div class="value" id="maxDrawdown">--%</div>
-                    <div class="stat-description">Mức sụt giảm tối đa</div>
-                </div>
-                <div class="stat-card advanced">
-                    <h3>Profit Factor</h3>
-                    <div class="value" id="profitFactor">--</div>
-                    <div class="stat-description">Tỷ lệ lãi/lỗ</div>
-                </div>
-                <div class="stat-card advanced">
-                    <h3>Risk/Reward</h3>
-                    <div class="value" id="riskReward">--</div>
-                    <div class="stat-description">Tỷ lệ rủi ro/phần thưởng</div>
-                </div>
-                <div class="stat-card advanced">
-                    <h3>Chuỗi Thắng Tối Đa</h3>
-                    <div class="value" id="maxWinStreak">--</div>
-                    <div class="stat-description">Số lần thắng liên tiếp</div>
-                </div>
-                <div class="stat-card advanced">
-                    <h3>Chuỗi Thua Tối Đa</h3>
-                    <div class="value" id="maxLossStreak">--</div>
-                    <div class="stat-description">Số lần thua liên tiếp</div>
+                    <p>Chỉ số rủi ro/lợi nhuận</p>
                 </div>
             </div>
+            <div class="stat-body">
+                <div class="value-large" id="sharpeRatio">--</div>
+                <div class="stat-interpretation">
+                    <div class="interpretation-bar">
+                        <div class="bar-segment poor"></div>
+                        <div class="bar-segment fair"></div>
+                        <div class="bar-segment good"></div>
+                        <div class="bar-segment excellent"></div>
+                    </div>
+                    <div class="interpretation-labels">
+                        <span>Kém</span>
+                        <span>Khá</span>
+                        <span>Tốt</span>
+                        <span>Xuất sắc</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="advanced-stat-card">
+            <div class="stat-header">
+                <div class="stat-icon-advanced">📉</div>
+                <div class="stat-title">
+                    <h3>Max Drawdown</h3>
+                    <p>Mức sụt giảm tối đa</p>
+                </div>
+            </div>
+            <div class="stat-body">
+                <div class="value-large negative" id="maxDrawdown">--%</div>
+                <div class="drawdown-chart">
+                    <canvas id="drawdownMini" width="100" height="40"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="advanced-stat-card">
+            <div class="stat-header">
+                <div class="stat-icon-advanced">💹</div>
+                <div class="stat-title">
+                    <h3>Profit Factor</h3>
+                    <p>Tỷ lệ lãi/lỗ</p>
+                </div>
+            </div>
+            <div class="stat-body">
+                <div class="value-large" id="profitFactor">--</div>
+                <div class="profit-breakdown">
+                    <div class="breakdown-item">
+                        <span class="label">Tổng lãi:</span>
+                        <span class="value positive" id="totalProfit">0</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span class="label">Tổng lỗ:</span>
+                        <span class="value negative" id="totalLoss">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="advanced-stat-card">
+            <div class="stat-header">
+                <div class="stat-icon-advanced">⚖️</div>
+                <div class="stat-title">
+                    <h3>Risk/Reward</h3>
+                    <p>Tỷ lệ rủi ro/phần thưởng</p>
+                </div>
+            </div>
+            <div class="stat-body">
+                <div class="value-large" id="riskReward">--</div>
+                <div class="risk-reward-visual">
+                    <div class="rr-bar">
+                        <div class="rr-risk">Risk</div>
+                        <div class="rr-reward">Reward</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="advanced-stat-card streak-card">
+            <div class="stat-header">
+                <div class="stat-icon-advanced">🔥</div>
+                <div class="stat-title">
+                    <h3>Chuỗi Thắng/Thua</h3>
+                    <p>Streak tối đa</p>
+                </div>
+            </div>
+            <div class="stat-body">
+                <div class="streak-container">
+                    <div class="streak-item win">
+                        <div class="streak-icon">🏆</div>
+                        <div class="streak-value" id="maxWinStreak">--</div>
+                        <div class="streak-label">Thắng liên tiếp</div>
+                    </div>
+                    <div class="streak-divider"></div>
+                    <div class="streak-item loss">
+                        <div class="streak-icon">💔</div>
+                        <div class="streak-value" id="maxLossStreak">--</div>
+                        <div class="streak-label">Thua liên tiếp</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="advanced-stat-card performance-card">
+            <div class="stat-header">
+                <div class="stat-icon-advanced">📈</div>
+                <div class="stat-title">
+                    <h3>Hiệu Suất Tổng Thể</h3>
+                    <p>Đánh giá chung</p>
+                </div>
+            </div>
+            <div class="stat-body">
+                <div class="performance-score">
+                    <div class="score-circle">
+                        <svg viewBox="0 0 36 36" class="circular-chart">
+                            <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                            <path class="circle" id="performanceCircle" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                            <text x="18" y="20.35" class="percentage" id="performanceScore">0%</text>
+                        </svg>
+                    </div>
+                    <div class="performance-grade" id="performanceGrade">--</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
             
             <!-- Filters -->
             <div class="filter-section">
@@ -200,34 +372,34 @@
             </div>
             
             <!-- Trading Table Section -->
-<div class="table-section">
-    <div class="table-header">
-        <h2 class="section-title">
-            <span class="title-icon">📋</span>
-            Lịch Sử Giao Dịch
-            <span class="title-decoration"></span>
-        </h2>
-        
-        <div class="table-controls">
-            <div class="search-box">
-                <input type="text" id="tableSearch" placeholder="🔍 Tìm kiếm..." />
-            </div>
-            <div class="table-actions">
-                <select id="pageSize">
-                    <option value="10">10 dòng</option>
-                    <option value="25" selected>25 dòng</option>
-                    <option value="50">50 dòng</option>
-                    <option value="100">100 dòng</option>
-                </select>
-                <button class="btn-export" onclick="exportTableToExcel()">
-                    📊 Export Excel
-                </button>
-                <button class="btn-export" onclick="exportTableToPDF()">
-                    📄 Export PDF
-                </button>
-            </div>
-        </div>
-    </div>
+            <div class="table-section">
+                <div class="table-header">
+                    <h2 class="section-title">
+                        <span class="title-icon">📋</span>
+                        Lịch Sử Giao Dịch
+                        <span class="title-decoration"></span>
+                    </h2>
+                    
+                    <div class="table-controls">
+                        <div class="search-box">
+                            <input type="text" id="tableSearch" placeholder="🔍 Tìm kiếm..." />
+                        </div>
+                        <div class="table-actions">
+                            <select id="pageSize">
+                                <option value="10">10 dòng</option>
+                                <option value="25" selected>25 dòng</option>
+                                <option value="50">50 dòng</option>
+                                <option value="100">100 dòng</option>
+                            </select>
+                            <button class="btn-export" onclick="exportTableToExcel()">
+                                📊 Export Excel
+                            </button>
+                            <button class="btn-export" onclick="exportTableToPDF()">
+                                📄 Export PDF
+                            </button>
+                        </div>
+                    </div>
+                </div>
     
                 <div class="table-container">
                     <div class="table-wrapper">
