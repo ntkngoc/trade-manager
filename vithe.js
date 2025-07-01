@@ -69,6 +69,16 @@ function updateChartTheme(chart) {
 function handleFileUpload(event) {
     const file = event.target.files[0];
     if (!file) return;
+
+    if (!file.name.endsWith('.xlsx') && !file.name.endsWith('.xls')) {
+        showError('Chỉ hỗ trợ file Excel (.xlsx, .xls)');
+        return;
+    }
+    
+    if (file.size > 10 * 1024 * 1024) { // 10MB
+        showError('File quá lớn (tối đa 10MB)');
+        return;
+    }
     
     const statusDiv = document.getElementById('fileStatus');
     statusDiv.innerHTML = '⏳ Đang xử lý file...';

@@ -3,18 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trading Dashboard Pro - MEXC</title>
+    <title>Lịch sử vị thế</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="vithe.css">
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>📈 Trading Dashboard Pro MEXC</h1>
+            <h1>📈 Lịch sử vị thế</h1>
             <p>Phân tích chi tiết lịch sử giao dịch và hiệu suất trading</p>
             <div class="theme-toggle">
                 <button id="themeToggle" onclick="toggleTheme()">🌙</button>
@@ -298,19 +298,6 @@
                 <input type="date" id="dateTo">
             </div>
             
-            <!-- Export Buttons -->
-            <div class="export-section">
-                <button class="export-btn" onclick="exportToPDF()">
-                    📄 Xuất PDF
-                </button>
-                <button class="export-btn" onclick="exportToExcel()">
-                    📊 Xuất Excel
-                </button>
-                <button class="export-btn" onclick="shareReport()">
-                    🔗 Chia sẻ
-                </button>
-            </div>
-            
             <!-- Charts -->
             <div class="charts-grid">
                 <!-- PNL Chart -->
@@ -482,6 +469,6 @@
         </div>
     </div>
     
-    <script src="script.js"></script>
+    <script src="vithe.js"></script>
 </body>
 </html>
