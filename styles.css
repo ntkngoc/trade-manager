@@ -966,6 +966,7 @@ tbody tr:hover {
 .stat-card.warning { border-left: 4px solid #f59e0b; }
 .stat-card.secondary { border-left: 4px solid #8b5cf6; }
 .stat-card.accent { border-left: 4px solid #ec4899; }
+.stat-card.danger { border-left: 4px solid #ff0202; }
 
 .stat-icon {
   width: 60px;

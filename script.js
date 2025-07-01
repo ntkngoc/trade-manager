@@ -176,6 +176,7 @@ function updateStats() {
     try {
         const totalTrades = filteredData.length;
         const totalPNL = filteredData.reduce((sum, trade) => sum + (trade.pnl || 0), 0);
+        const totalFee = filteredData.reduce((sum, trade) => sum + (trade.fee || 0), 0);
         const winningTrades = filteredData.filter(trade => trade.pnl > 0).length;
         const winRate = totalTrades > 0 ? (winningTrades / totalTrades * 100) : 0;
         const avgProfit = totalTrades > 0 ? (totalPNL / totalTrades) : 0;
@@ -205,6 +206,8 @@ function updateStats() {
         document.getElementById('totalTrades').textContent = totalTrades.toLocaleString();
         document.getElementById('totalPNL').textContent = formatCurrency(totalPNL);
         document.getElementById('totalPNL').className = totalPNL >= 0 ? 'value positive' : 'value negative';
+        document.getElementById('totalFee').textContent = formatCurrency(totalFee);
+        document.getElementById('totalFee').className = totalFee >= 0 ? 'value positive' : 'value negative';
         document.getElementById('winRate').textContent = winRate.toFixed(1) + '%';
         document.getElementById('avgProfit').textContent = formatCurrency(avgProfit);
         document.getElementById('avgProfit').className = avgProfit >= 0 ? 'value positive' : 'value negative';
@@ -1078,188 +1081,6 @@ function updateTable() {
 }
 
 
-// Export functions
-function exportToPDF() {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    
-    // Title
-    doc.setFontSize(20);
-    doc.text('Trading Report - MEXC', 105, 20, { align: 'center' });
-    
-    // Date range
-    doc.setFontSize(12);
-    const dateRange = `${document.getElementById('dateFrom').value} - ${document.getElementById('dateTo').value}`;
-    doc.text(`Thời gian: ${dateRange}`, 105, 30, { align: 'center' });
-    
-    // Stats
-    doc.setFontSize(14);
-    doc.text('Thống kê tổng quan:', 20, 45);
-    
-    doc.setFontSize(11);
-    const stats = [
-        `Tổng giao dịch: ${document.getElementById('totalTrades').textContent}`,
-        `Tổng PNL: ${document.getElementById('totalPNL').textContent}`,
-        `Tỷ lệ thắng: ${document.getElementById('winRate').textContent}`,
-        `Sharpe Ratio: ${document.getElementById('sharpeRatio').textContent}`,
-        `Max Drawdown: ${document.getElementById('maxDrawdown').textContent}`,
-        `Profit Factor: ${document.getElementById('profitFactor').textContent}`
-    ];
-    
-    stats.forEach((stat, index) => {
-        doc.text(stat, 20, 55 + (index * 7));
-    });
-    
-    // Recommendations
-    doc.setFontSize(14);
-    doc.text('Khuyến nghị:', 20, 105);
-    
-    doc.setFontSize(10);
-    const recommendations = generateRecommendations();
-    recommendations.forEach((rec, index) => {
-        if (105 + 15 + (index * 7) < 280) {
-            doc.text(rec, 20, 115 + (index * 7));
-        }
-    });
-    
-    // Save
-    doc.save('trading-report.pdf');
-}
-
-function exportToExcel() {
-    const wb = XLSX.utils.book_new();
-    
-    // Summary sheet
-    const summaryData = [
-        ['Trading Report - MEXC'],
-        [''],
-        ['Thống kê tổng quan'],
-        ['Tổng giao dịch', document.getElementById('totalTrades').textContent],
-        ['Tổng PNL', document.getElementById('totalPNL').textContent],
-        ['Tỷ lệ thắng', document.getElementById('winRate').textContent],
-        ['Lợi nhuận trung bình', document.getElementById('avgProfit').textContent],
-        [''],
-        ['Chỉ số nâng cao'],
-        ['Sharpe Ratio', document.getElementById('sharpeRatio').textContent],
-        ['Max Drawdown', document.getElementById('maxDrawdown').textContent],
-        ['Profit Factor', document.getElementById('profitFactor').textContent],
-        ['Risk/Reward', document.getElementById('riskReward').textContent],
-        ['Chuỗi thắng tối đa', document.getElementById('maxWinStreak').textContent],
-        ['Chuỗi thua tối đa', document.getElementById('maxLossStreak').textContent],
-        [''],
-        ['Khuyến nghị'],
-        ...generateRecommendations().map(rec => [rec])
-    ];
-    
-    const summarySheet = XLSX.utils.aoa_to_sheet(summaryData);
-    XLSX.utils.book_append_sheet(wb, summarySheet, 'Summary');
-    
-    // Detailed trades sheet
-    const tradesData = [
-        ['Cặp', 'Thời gian mở', 'Thời gian đóng', 'Hướng', 'Giá mở', 'Giá đóng', 'Số lượng', 'PNL', 'Phí', 'Trạng thái']
-    ];
-    
-    filteredData.forEach(trade => {
-        tradesData.push([
-            trade.pair,
-            formatDateTime(trade.openTime),
-            formatDateTime(trade.closeTime),
-            trade.direction,
-            trade.openPrice,
-            trade.closePrice,
-            trade.quantity,
-            trade.pnl,
-            trade.fee,
-            trade.status
-        ]);
-    });
-    
-    const tradesSheet = XLSX.utils.aoa_to_sheet(tradesData);
-    XLSX.utils.book_append_sheet(wb, tradesSheet, 'Trades');
-    
-    // Pair analysis sheet
-    const pairAnalysis = analyzePairs();
-    const pairData = [
-        ['Cặp', 'Số giao dịch', 'Tổng PNL', 'PNL TB', 'Tỷ lệ thắng', 'Max Win', 'Max Loss']
-    ];
-    
-    Object.entries(pairAnalysis).forEach(([pair, stats]) => {
-        pairData.push([
-            pair,
-            stats.trades,
-            stats.totalPNL.toFixed(4),
-            stats.avgPNL.toFixed(4),
-            stats.winRate.toFixed(1) + '%',
-            stats.maxWin.toFixed(4),
-            stats.maxLoss.toFixed(4)
-        ]);
-    });
-    
-    const pairSheet = XLSX.utils.aoa_to_sheet(pairData);
-    XLSX.utils.book_append_sheet(wb, pairSheet, 'Pair Analysis');
-    
-    // Time analysis sheet
-    const timeAnalysis = analyzeTimePatterns();
-    const timeData = [
-        ['Giờ', 'Số giao dịch', 'Tổng PNL', 'Tỷ lệ thắng'],
-        ...Object.entries(timeAnalysis.hourly).map(([hour, stats]) => [
-            hour + ':00',
-            stats.trades,
-            stats.pnl.toFixed(4),
-            stats.winRate.toFixed(1) + '%'
-        ])
-    ];
-    
-    const timeSheet = XLSX.utils.aoa_to_sheet(timeData);
-    XLSX.utils.book_append_sheet(wb, timeSheet, 'Time Analysis');
-    
-    // Save file
-    XLSX.writeFile(wb, `trading-report-${new Date().toISOString().split('T')[0]}.xlsx`);
-}
-
-function shareReport() {
-    const reportData = generateReportData();
-    const shareText = `
-📊 Trading Report Summary
-========================
-📈 Tổng PNL: ${reportData.overview.totalPNL.toFixed(2)} USDT
-🎯 Tỷ lệ thắng: ${reportData.overview.winRate.toFixed(1)}%
-📊 Tổng giao dịch: ${reportData.overview.totalTrades}
-💰 Profit Factor: ${reportData.overview.profitFactor.toFixed(2)}
-📉 Max Drawdown: ${reportData.overview.maxDrawdown.toFixed(1)}%
-
-Top performing pair: ${Object.entries(reportData.pairAnalysis)[0]?.[0] || 'N/A'}
-    `;
-    
-    if (navigator.share) {
-        navigator.share({
-            title: 'Trading Report - MEXC',
-            text: shareText
-        }).catch(console.error);
-    } else {
-        // Fallback - copy to clipboard
-        navigator.clipboard.writeText(shareText).then(() => {
-            alert('Báo cáo đã được sao chép vào clipboard!');
-        }).catch(console.error);
-    }
-}
-
-function generateReportData() {
-    const stats = {
-        overview: {
-            totalTrades: filteredData.length,
-            totalPNL: filteredData.reduce((sum, t) => sum + t.pnl, 0),
-            winRate: calculateWinRate(),
-            avgProfit: calculateAvgProfit(),
-            ...calculateAdvancedMetrics()
-        },
-        pairAnalysis: analyzePairs(),
-        timeAnalysis: analyzeTimePatterns(),
-        recommendations: generateRecommendations()
-    };
-    
-    return stats;
-}
 
 function calculateWinRate() {
     if (filteredData.length === 0) return 0;
@@ -1582,18 +1403,6 @@ function processTradingData(data) {
 
 // Keyboard shortcuts
 document.addEventListener('keydown', function(e) {
-    // Ctrl/Cmd + S to export
-    if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-        e.preventDefault();
-        exportToExcel();
-    }
-    
-    // Ctrl/Cmd + P to export PDF
-    if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
-        e.preventDefault();
-        exportToPDF();
-    }
-    
     // Ctrl/Cmd + D for dark mode
     if ((e.ctrlKey || e.metaKey) && e.key === 'd') {
         e.preventDefault();
@@ -1825,66 +1634,6 @@ function changePage(direction) {
 function goToPage(page) {
     currentPage = page;
     updateTable();
-}
-
-// Export functions
-function exportTableToExcel() {
-    const tableData = filteredData.map(trade => ({
-        'Cặp': trade.pair,
-        'Hướng': trade.direction,
-        'Thời Gian Mở': formatDateTime(trade.openTime),
-        'Thời Gian Đóng': formatDateTime(trade.closeTime),
-        'Số Lượng': trade.quantity,
-        'Giá Vào': trade.entryPrice,
-        'Giá Ra': trade.exitPrice,
-        'PNL (USDT)': trade.pnl,
-        'Phí': trade.fee || 0
-    }));
-    
-    const ws = XLSX.utils.json_to_sheet(tableData);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Trading History");
-    
-    const fileName = `trading_history_${new Date().toISOString().split('T')[0]}.xlsx`;
-    XLSX.writeFile(wb, fileName);
-}
-
-function exportTableToPDF() {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF('l', 'mm', 'a4'); // landscape orientation
-    
-    // Add title
-    doc.setFontSize(16);
-    doc.text('Lịch Sử Giao Dịch', 20, 20);
-    
-    // Add date
-    doc.setFontSize(10);
-    doc.text(`Xuất ngày: ${new Date().toLocaleDateString('vi-VN')}`, 20, 30);
-    
-    // Prepare table data
-    const tableData = filteredData.map(trade => [
-        trade.pair,
-        trade.direction,
-        formatDateTime(trade.openTime),
-        formatDateTime(trade.closeTime),
-        formatNumber(trade.quantity),
-        formatPrice(trade.entryPrice),
-        formatPrice(trade.exitPrice),
-        formatCurrency(trade.pnl),
-        formatCurrency(trade.fee || 0)
-    ]);
-    
-    // Add table
-    doc.autoTable({
-        head: [['Cặp', 'Hướng', 'Mở', 'Đóng', 'Số Lượng', 'Giá Vào', 'Giá Ra', 'PNL', 'Phí']],
-        body: tableData,
-        startY: 40,
-        styles: { fontSize: 8 },
-        headStyles: { fillColor: [102, 126, 234] }
-    });
-    
-    const fileName = `trading_history_${new Date().toISOString().split('T')[0]}.pdf`;
-    doc.save(fileName);
 }
 
 // Utility functions
