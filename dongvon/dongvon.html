@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard - Phân tích Giao dịch</title>
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="background-overlay"></div>
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-spinner"></div>
+</div>
+
+<div class="container">
+  <div class="header">
+    <h1><i class="fas fa-chart-line"></i> Dashboard Phân tích Giao dịch</h1>
+    <p>Import file Excel để phân tích giao dịch theo ngày và cặp giao dịch với giao diện hiện đại và trực quan.</p>
+  </div>
+
+  <div class="file-input-container">
+    <div class="file-input-wrapper">
+      <input type="file" id="fileInput" class="file-input" accept=".xlsx, .xls">
+      <label for="fileInput" class="file-input-label">
+        <i class="fas fa-cloud-upload-alt"></i>
+        Chọn file Excel
+      </label>
+    </div>
+  </div>
+
+  <!-- Cards -->
+  <div class="cards">
+    <div class="card">
+      <div class="card-icon">
+        <i class="fas fa-exchange-alt"></i>
+      </div>
+      <h2 id="totalTransactions">0</h2>
+      <p>Tổng số giao dịch</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">
+        <i class="fas fa-arrow-trend-up"></i>
+      </div>
+      <h2 id="totalInflow">0</h2>
+      <p>Tổng dòng tiền vào</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">
+        <i class="fas fa-crown"></i>
+      </div>
+      <h2 id="topPair">N/A</h2>
+      <p>Cặp giao dịch phổ biến nhất</p>
+    </div>
+  </div>
+
+  <!-- Charts Section -->
+  <div class="charts-section">
+    <div class="section-title">
+      <h2>Biểu đồ Phân tích Chi tiết</h2>
+      <p>Theo dõi xu hướng và phân tích sâu về các giao dịch</p>
+    </div>
+
+    <div class="charts">
+      <div class="chart-container">
+        <div class="chart-title">
+          <i class="fas fa-chart-line"></i>
+          Giao dịch theo Ngày
+        </div>
+        <canvas id="dailyTransactionChart"></canvas>
+      </div>
+      
+      <div class="chart-container">
+        <div class="chart-title">
+          <i class="fas fa-chart-bar"></i>
+          Dòng Tiền Vào/Ra theo Ngày
+        </div>
+        <canvas id="dailyInflowOutflowChart"></canvas>
+      </div>
+      
+      <div class="chart-container">
+        <div class="chart-title">
+          <i class="fas fa-chart-column"></i>
+          Giao dịch theo Cặp
+        </div>
+        <canvas id="pairBarChart"></canvas>
+      </div>
+      
+      <div class="chart-container">
+        <div class="chart-title">
+          <i class="fas fa-chart-pie"></i>
+          Phân bố Dòng Tiền theo Cặp
+        </div>
+        <canvas id="pairPieChart"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <i class="fas fa-heart"></i>
+  Dashboard Phân tích Giao dịch © 2025 - Thiết kế hiện đại & Trực quan
+  <i class="fas fa-chart-area"></i>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
