@@ -83,6 +83,16 @@
     <h2 id="totalTransfer">N/A</h2>
     <p>Tổng nạp</p>
   </div>
+  <div class="card" id="profitCard">
+  <div class="card-icon"><i class="fas fa-arrow-up"></i></div>
+  <h2 id="totalProfit">0</h2>
+  <p>Tổng lãi</p>
+</div>
+<div class="card" id="lossCard">
+  <div class="card-icon"><i class="fas fa-arrow-down"></i></div>
+  <h2 id="totalLoss">0</h2>
+  <p>Tổng lỗ</p>
+</div>
 </div>
 
 
@@ -101,6 +111,14 @@
           Giao dịch theo Ngày
         </div>
         <canvas id="dailyTransactionChart"></canvas>
+      </div>
+
+      <div class="chart-container">
+        <div class="chart-title">
+          <i class="fas fa-chart-line"></i>
+          Lợi nhuận lãi/lỗ theo ngày
+        </div>
+        <canvas id="dailyProfitLossChart"></canvas>
       </div>
       
       <div class="chart-container">
@@ -126,6 +144,7 @@
         </div>
         <canvas id="pairPieChart"></canvas>
       </div>
+
     </div>
   </div>
 </div>
