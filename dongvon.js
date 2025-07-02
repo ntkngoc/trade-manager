@@ -8,6 +8,10 @@ const fileInput = document.getElementById('fileInput');
   const totalTransactions = document.getElementById('totalTransactions');
   const totalInflow = document.getElementById('totalInflow');
   const topPair = document.getElementById('topPair');
+  const totalFunding = document.getElementById('totalFunding');
+  const totalClosePosition = document.getElementById('totalClosePosition');
+  const totalFee = document.getElementById('totalFee');
+  const totalTransfer = document.getElementById('totalTransfer');
 
   let dailyTransactionChart, dailyInflowOutflowChart, pairBarChart, pairPieChart;
 
@@ -48,8 +52,9 @@ const fileInput = document.getElementById('fileInput');
     const timeIndex = headers.indexOf('Thời gian');
     const inflowIndex = headers.indexOf('Số tiền');
     const pairIndex = headers.indexOf('Cặp giao dịch Futures');
+    const typeIndex = headers.indexOf('Loại tài sản');
 
-    if (timeIndex === -1 || inflowIndex === -1 || pairIndex === -1) {
+    if (timeIndex === -1 || inflowIndex === -1 || pairIndex === -1 || typeIndex === -1) {
       alert('Không tìm thấy cột cần thiết trong dữ liệu.');
       return;
     }
@@ -58,12 +63,17 @@ const fileInput = document.getElementById('fileInput');
     const dailyInflowOutflow = {};
     const pairCounts = {};
     const pairInflow = {};
+    const assetTypeTotals = {};
     let inflow = 0;
 
     rows.forEach(row => {
       const time = row[timeIndex];
       const amount = parseFloat(row[inflowIndex]) || 0;
       const pair = row[pairIndex];
+      const assetType = row[typeIndex];
+      if (!assetType) return;
+      if (!assetTypeTotals[assetType]) assetTypeTotals[assetType] = 0;
+      assetTypeTotals[assetType] += amount;
 
       if (!time) return;
 
@@ -90,9 +100,33 @@ const fileInput = document.getElementById('fileInput');
       }
     });
 
+    Object.entries(assetTypeTotals).forEach(([type, total]) => {
+      console.log(`${type}: ${total.toFixed(4)}`);
+      switch (type) {
+        case 'FUNDING':
+          totalFunding.textContent = total.toFixed(4);
+          break;
+        case 'CLOSE_POSITION':
+          totalClosePosition.textContent = total.toFixed(4);
+          break;
+        case 'FEE':
+          totalFee.textContent = total.toFixed(4);
+          break;
+        case 'TRANSFER':
+          totalTransfer.textContent = total.toFixed(4);
+          break;
+        default:
+          break;
+      }
+    });
+
     // Animate numbers
     animateValue(totalTransactions, 0, rows.length, 1000);
     animateValue(totalInflow, 0, inflow, 1000, true);
+    animateValue(totalFunding, 0, totalFunding.textContent, 1000, true);
+    animateValue(totalClosePosition, 0, totalClosePosition.textContent, 1000, true);
+    animateValue(totalFee, 0, totalFee.textContent, 1000, true);
+    animateValue(totalTransfer, 0, totalTransfer.textContent, 1000, true);
 
     const topPairName = Object.keys(pairCounts).reduce((a, b) => pairCounts[a] > pairCounts[b] ? a : b, 'N/A');
     topPair.textContent = topPairName;

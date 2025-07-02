@@ -15,6 +15,10 @@
     --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
     --gradient-accent: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    --gradient-yellow: linear-gradient(135deg, #f8e005 0%, #f8df00 100%);
+    --gradient-danger: linear-gradient(135deg, #f50c0c 0%, #fe0000 100%);
+    --gradient-success: linear-gradient(135deg, #00fd54 0%, #00fd54 100%);
+    --gradient-pink: linear-gradient(135deg, #fa00d9 0%, #fa00d9 100%);
   }
 
   * {
@@ -185,6 +189,22 @@
     background: var(--gradient-accent);
   }
 
+  .card:nth-child(4) .card-icon {
+    background: var(--gradient-yellow);
+  }
+
+  .card:nth-child(5) .card-icon {
+    background: var(--gradient-danger);
+  }
+
+  .card:nth-child(6) .card-icon {
+    background: var(--gradient-success);
+  }
+
+  .card:nth-child(7) .card-icon {
+    background: var(--gradient-pink);
+  }
+
   .card h2 {
     font-size: 2.5rem;
     font-weight: 700;
@@ -223,7 +243,7 @@
 
   .charts {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(1200px, 1fr));
     gap: 2rem;
   }
 

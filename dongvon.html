@@ -8,7 +8,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-<link rel="stylesheet" href="vithe.css">
+<link rel="stylesheet" href="dongvon.css">
 </head>
 <body>
 <div class="background-overlay"></div>
@@ -33,29 +33,59 @@
   </div>
 
   <!-- Cards -->
-  <div class="cards">
-    <div class="card">
-      <div class="card-icon">
-        <i class="fas fa-exchange-alt"></i>
-      </div>
-      <h2 id="totalTransactions">0</h2>
-      <p>Tổng số giao dịch</p>
+<div class="cards">
+  <div class="card">
+    <div class="card-icon">
+      <i class="fas fa-exchange-alt"></i>
     </div>
-    <div class="card">
-      <div class="card-icon">
-        <i class="fas fa-arrow-trend-up"></i>
-      </div>
-      <h2 id="totalInflow">0</h2>
-      <p>Tổng dòng tiền vào</p>
-    </div>
-    <div class="card">
-      <div class="card-icon">
-        <i class="fas fa-crown"></i>
-      </div>
-      <h2 id="topPair">N/A</h2>
-      <p>Cặp giao dịch phổ biến nhất</p>
-    </div>
+    <h2 id="totalTransactions">0</h2>
+    <p>Tổng số giao dịch</p>
   </div>
+  <div class="card">
+    <div class="card-icon">
+      <i class="fas fa-arrow-trend-up"></i>
+    </div>
+    <h2 id="totalInflow">0</h2>
+    <p>Tổng dòng tiền vào</p>
+  </div>
+  <div class="card">
+    <div class="card-icon">
+      <i class="fas fa-fire"></i>
+    </div>
+    <h2 id="topPair">N/A</h2>
+    <p>Cặp giao dịch phổ biến nhất</p>
+  </div>
+  <div class="card">
+    <div class="card-icon">
+      <i class="fas fa-hand-holding-usd"></i>
+    </div>
+    <h2 id="totalFunding">N/A</h2>
+    <p>Tổng phí funding</p>
+  </div>
+  <div class="card">
+    <div class="card-icon">
+      <i class="fas fa-chart-line"></i>
+    </div>
+    <h2 id="totalClosePosition">N/A</h2>
+    <p>Tổng lợi nhuận</p>
+  </div>
+  <div class="card">
+    <div class="card-icon">
+      <i class="fas fa-receipt"></i>
+    </div>
+    <h2 id="totalFee">N/A</h2>
+    <p>Tổng phí giao dịch</p>
+  </div>
+  <div class="card">
+    <div class="card-icon">
+      <i class="fas fa-wallet"></i>
+    </div>
+    <h2 id="totalTransfer">N/A</h2>
+    <p>Tổng nạp</p>
+  </div>
+</div>
+
+
 
   <!-- Charts Section -->
   <div class="charts-section">
