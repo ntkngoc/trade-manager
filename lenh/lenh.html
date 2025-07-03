@@ -5,10 +5,14 @@
   <title>Phân tích lịch sử lệnh Futures MEXC</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap">
   <link rel="stylesheet" href="lenh.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Sử dụng bản build UMD của Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+  <!-- Load chartjs-chart-matrix sau Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-matrix@1.0.0/dist/chartjs-chart-matrix.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-matrix@4.2.3/dist/chartjs-chart-matrix.min.js"></script>
 </head>
+
+    
 <body>
   <div class="dashboard">
     <div class="dark-toggle">
@@ -64,7 +68,7 @@
       </div>
       <div class="chart-block">
         <div class="chart-title">Heatmap lãi/lỗ theo ngày trong tháng</div>
-        <canvas id="pnlHeatmap" height="250"></canvas>
+        <canvas id="pnlHeatmap"></canvas>
       </div>
       <div class="chart-block">
         <div class="chart-title">Scatter plot: PNL vs. Đòn bẩy</div>
@@ -129,5 +133,10 @@
     </div>
   </div>
   <script src="lenh.js"></script>
+  <script src="scatterChart.js"></script>
+  <script src="pieChart.js"></script>
+  <script src="heamapChart.js"></script>
+  <script src="darkMode.js"></script>
+  <script src="chart.js"></script>
 </body>
 </html>

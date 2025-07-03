@@ -1,3 +1,15 @@
+// Đăng ký Matrix Controller cho Chart.js
+document.addEventListener('DOMContentLoaded', function() {
+  if (typeof Chart !== 'undefined') {
+    // Đăng ký controller matrix
+    if (typeof window.ChartMatrix !== 'undefined') {
+      Chart.register(window.ChartMatrix);
+    } else {
+      console.error('chartjs-chart-matrix không được load. Heatmap sẽ không hoạt động.');
+    }
+  }
+});
+
 // Helper: parse số có dấu phẩy, số âm
 function parseNum(str) {
   if (typeof str === 'number') return str;
@@ -24,12 +36,7 @@ function handleFile(e) {
   reader.readAsArrayBuffer(file);
 }
 
-// Dark mode
-const darkBtn = document.getElementById('darkBtn');
-darkBtn.onclick = function() {
-  document.documentElement.classList.toggle('dark-mode');
-  darkBtn.textContent = document.documentElement.classList.contains('dark-mode') ? '🌞 Chế độ sáng' : '🌙 Chế độ tối';
-};
+
 
 function analyze(data) {
   if (!data.length) return;
@@ -254,60 +261,10 @@ function analyze(data) {
   drawChart('drawdownCurve', 'Max Drawdown', equityDates, drawdowns, 'line', () => 'rgba(239,68,68,0.8)');
 
   // Heatmap PNL theo ngày trong tháng
-  drawHeatmap('pnlHeatmap', heatmap);
+  setTimeout(() => drawHeatmap(heatmap), 500);
 
   // Scatter plot PNL vs đòn bẩy
   drawScatter('scatterPNLLev', scatterPNLLev);
-}
-
-function drawChart(id, label, labels, data, type, colorFn) {
-  if (charts[id]) charts[id].destroy();
-  charts[id] = new Chart(document.getElementById(id), {
-    type,
-    data: {
-      labels,
-      datasets: [{
-        label,
-        data,
-        backgroundColor: typeof colorFn === 'function' ? data.map(colorFn) : colorFn,
-        borderColor: '#3334',
-        borderWidth: 1,
-        fill: type === 'line'
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { display: false },
-        title: { display: false }
-      },
-      scales: { y: { beginAtZero: true } }
-    }
-  });
-}
-
-function drawPie(id, label, obj, doughnut = false) {
-  if (charts[id]) charts[id].destroy();
-  const labels = Object.keys(obj);
-  const data = Object.values(obj);
-  const bgColors = [
-    'rgba(99,102,241,0.8)','rgba(16,185,129,0.8)','rgba(245,158,11,0.8)',
-    'rgba(239,68,68,0.8)','rgba(79,172,254,0.8)','rgba(168,85,247,0.8)','rgba(251,191,36,0.8)'
-  ];
-  charts[id] = new Chart(document.getElementById(id), {
-    type: doughnut ? 'doughnut' : 'pie',
-    data: {
-      labels,
-      datasets: [{ label, data, backgroundColor: bgColors }]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { display: true },
-        title: { display: false }
-      }
-    }
-  });
 }
 
 function renderTopTable(tableId, rows, headers) {
@@ -333,114 +290,3 @@ function sortedByPNL(rows, idx) {
   }))
   .filter(r => typeof r['PNL đóng'] === 'number' && !isNaN(r['PNL đóng']));
 }
-
-// Heatmap PNL theo ngày trong tháng
-function drawHeatmap(id, heatmap) {
-  if (charts[id]) charts[id].destroy();
-  let days = [], months = [];
-  let matrix = [];
-  for (let d in heatmap) {
-    let [y, m, day] = d.split('-');
-    months.push(`${y}-${m}`);
-    days.push(day);
-    matrix.push({x: +day, y: `${y}-${m}`, v: heatmap[d]});
-  }
-  days = Array.from(new Set(days)).sort((a,b)=>a-b);
-  months = Array.from(new Set(months)).sort();
-  // Lấp đầy ma trận
-  let data = [];
-  months.forEach((m, yIdx) => {
-    days.forEach((d, xIdx) => {
-      let found = matrix.find(row => row.x == d && row.y == m);
-      data.push({
-        x: xIdx,
-        y: yIdx,
-        v: found ? found.v : 0
-      });
-    });
-  });
-  charts[id] = new Chart(document.getElementById(id), {
-    type: 'matrix',
-    data: {
-      datasets: [{
-        label: 'PNL',
-        data,
-        backgroundColor: ctx => {
-          let v = ctx.raw.v;
-          if (v > 0) return 'rgba(16,185,129,0.8)';
-          if (v < 0) return 'rgba(239,68,68,0.8)';
-          return 'rgba(203,213,225,0.6)';
-        },
-        width: ({chart}) => (chart.chartArea || {}).width / days.length - 1,
-                height: ({chart}) => (chart.chartArea || {}).height / months.length - 1,
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          callbacks: {
-            title: ctx => {
-              let x = days[ctx[0].raw.x];
-              let y = months[ctx[0].raw.y];
-              return `${y}-${x.padStart(2, '0')}`;
-            },
-            label: ctx => `PNL: ${ctx.raw.v.toFixed(4)}`
-          }
-        }
-      },
-      scales: {
-        x: {
-          type: 'category',
-          labels: days,
-          title: { display: true, text: 'Ngày trong tháng' },
-          grid: { display: false }
-        },
-        y: {
-          type: 'category',
-          labels: months,
-          title: { display: true, text: 'Tháng' },
-          grid: { display: false }
-        }
-      }
-    }
-  });
-}
-
-// Scatter plot: PNL vs đòn bẩy
-function drawScatter(id, data) {
-  if (charts[id]) charts[id].destroy();
-  charts[id] = new Chart(document.getElementById(id), {
-    type: 'scatter',
-    data: {
-      datasets: [{
-        label: 'PNL vs Đòn bẩy',
-        data,
-        backgroundColor: ctx => ctx.raw.y >= 0 ? 'rgba(16,185,129,0.8)' : 'rgba(239,68,68,0.8)'
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          callbacks: {
-            label: ctx => `Đòn bẩy: ${ctx.raw.x}x, PNL: ${ctx.raw.y.toFixed(4)}`
-          }
-        }
-      },
-      scales: {
-        x: {
-          title: { display: true, text: 'Đòn bẩy (x)' },
-          beginAtZero: true
-        },
-        y: {
-          title: { display: true, text: 'PNL' },
-          beginAtZero: false
-        }
-      }
-    }
-  });
-}
-
