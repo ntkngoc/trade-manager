@@ -1,0 +1,40 @@
+
+    body { font-family: 'Roboto', Arial, sans-serif; background: #f4f6fa; transition: background .3s, color .3s;}
+    .dashboard { max-width: 1280px; margin: 24px auto; background: #fff; border-radius: 12px; box-shadow: 0 2px 12px #0001; padding: 32px; }
+    .kpis { display: flex; flex-wrap: wrap; gap: 24px; margin-bottom: 32px; }
+    .kpi { flex: 1; min-width: 180px; background: #f3f6fc; border-radius: 8px; padding: 16px; text-align: center; }
+    .charts { display: flex; flex-wrap: wrap; gap: 32px; }
+    .chart-block { flex: 1 1 400px; min-width: 350px; background: #fafbfc; border-radius: 8px; padding: 18px; margin-bottom: 32px; }
+    .chart-title {
+      font-weight: bold;
+      font-size: 1.12em;
+      margin-bottom: 8px;
+      color: #1e293b;
+    }
+    .advanced-indicators { margin-bottom: 32px; background: #f7f7f7; border-radius: 8px; padding: 18px;}
+    .advanced-indicators span {margin-right:32px;}
+    .behavior-block {margin-bottom:32px;background:#f7f7f7;border-radius:8px;padding:18px;}
+    .behavior-block h3 {margin-top:0;}
+    .dark-mode body { background: #1a202c; color: #f1f5f9;}
+    .dark-mode .dashboard { background: #222838; color: #f1f5f9;}
+    .dark-mode .kpi { background: #283046;}
+    .dark-mode .chart-block { background: #232a3a;}
+    .dark-mode .advanced-indicators, .dark-mode .behavior-block { background: #232a3a;}
+    .dark-mode .chart-title { color: #f8fafc;}
+    .dark-mode table { background: #232a3a; color: #f1f5f9;}
+    .dark-mode th { background: #334155;}
+    .dark-mode tr:nth-child(even) { background: #222838;}
+    .dark-mode tr:hover { background: #334155;}
+    .dark-toggle {float:right; margin-top:-32px;}
+    .dark-toggle button {background:#232a3a;color:#ffd700;border:none;padding:8px 20px;border-radius:6px;font-weight:bold;cursor:pointer;}
+    .dark-toggle button:hover {background:#334155;}
+    input[type="file"] { margin-bottom: 20px; }
+    table { border-collapse: collapse; width: 100%; font-size: 0.98em; }
+    th, td { border: 1px solid #ddd; padding: 6px 8px; text-align: center; }
+    th { background: #e7f1ff; }
+    tr:nth-child(even) { background: #f8fafc; }
+    tr:hover { background: #e0f2fe; }
+    @media (max-width: 900px) {
+      .charts { flex-direction: column; }
+      .chart-block { min-width: unset; }
+    }

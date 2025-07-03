@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Phân tích lịch sử lệnh Futures MEXC</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap">
+  <link rel="stylesheet" href="lenh.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-matrix@4.2.3/dist/chartjs-chart-matrix.min.js"></script>
+</head>
+<body>
+  <div class="dashboard">
+    <div class="dark-toggle">
+      <button id="darkBtn">🌙 Chế độ tối</button>
+    </div>
+    <h2>Dashboard phân tích lịch sử lệnh Futures MEXC</h2>
+    <input type="file" id="fileInput" accept=".xlsx,.csv" />
+    <div class="kpis">
+      <div class="kpi"><div id="totalOrders" style="font-size:2em;font-weight:bold"></div><div>Tổng số lệnh</div></div>
+      <div class="kpi"><div id="totalPNL" style="font-size:2em;font-weight:bold"></div><div>Tổng PNL đóng</div></div>
+      <div class="kpi"><div id="totalFee" style="font-size:2em;font-weight:bold"></div><div>Tổng phí giao dịch</div></div>
+      <div class="kpi"><div id="topPair" style="font-size:2em;font-weight:bold"></div><div>Cặp giao dịch nhiều nhất</div></div>
+      <div class="kpi"><div id="totalVolume" style="font-size:2em;font-weight:bold"></div><div>Tổng khối lượng</div></div>
+      <div class="kpi"><div id="avgLeverage" style="font-size:2em;font-weight:bold"></div><div>Đòn bẩy trung bình</div></div>
+      <div class="kpi" id="streakInfo"></div>
+    </div>
+
+    <div class="advanced-indicators" id="advancedIndicators"></div>
+
+    <div class="behavior-block" id="behaviorBlock"></div>
+
+    <div style="display: flex; gap: 32px; flex-wrap: wrap; margin-bottom: 32px;">
+      <div style="flex:1; min-width:340px;">
+        <div class="chart-title">Top lệnh lãi lớn nhất</div>
+        <table id="topProfitTable"></table>
+      </div>
+      <div style="flex:1; min-width:340px;">
+        <div class="chart-title">Top lệnh lỗ lớn nhất</div>
+        <table id="topLossTable"></table>
+      </div>
+    </div>
+
+    <div class="charts">
+      <div class="chart-block">
+        <div class="chart-title">Lãi/Lỗ theo ngày</div>
+        <canvas id="pnlByDay"></canvas>
+      </div>
+      <div class="chart-block">
+        <div class="chart-title">Phí giao dịch theo ngày</div>
+        <canvas id="feeByDay"></canvas>
+      </div>
+      <div class="chart-block">
+        <div class="chart-title">Khối lượng giao dịch theo ngày</div>
+        <canvas id="volumeByDay"></canvas>
+      </div>
+      <div class="chart-block">
+        <div class="chart-title">Biểu đồ vốn giả định (Equity Curve)</div>
+        <canvas id="equityCurve"></canvas>
+      </div>
+      <div class="chart-block">
+        <div class="chart-title">Biểu đồ Max Drawdown theo thời gian</div>
+        <canvas id="drawdownCurve"></canvas>
+      </div>
+      <div class="chart-block">
+        <div class="chart-title">Heatmap lãi/lỗ theo ngày trong tháng</div>
+        <canvas id="pnlHeatmap" height="250"></canvas>
+      </div>
+      <div class="chart-block">
+        <div class="chart-title">Scatter plot: PNL vs. Đòn bẩy</div>
+        <canvas id="scatterPNLLev"></canvas>
+      </div>
+      <div class="chart-block">
+        <div class="chart-title">Tỷ lệ lệnh theo cặp</div>
+        <canvas id="pairPie"></canvas>
+      </div>
+      <div class="chart-block">
+        <div class="chart-title">Tỷ lệ lệnh theo hướng</div>
+        <canvas id="sideDonut"></canvas>
+      </div>
+      <div class="chart-block">
+        <div class="chart-title">Tần suất các mức đòn bẩy</div>
+        <canvas id="leverageBar"></canvas>
+      </div>
+      <div class="chart-block">
+        <div class="chart-title">Tỷ lệ lệnh LIMIT/MARKET</div>
+        <canvas id="orderTypeBar"></canvas>
+      </div>
+      <div class="chart-block">
+        <div class="chart-title">Lãi/Lỗ theo cặp</div>
+        <canvas id="pairPNLBar"></canvas>
+      </div>
+      <div class="chart-block">
+        <div class="chart-title">Phí giao dịch theo cặp</div>
+        <canvas id="pairFeeBar"></canvas>
+      </div>
+      <div class="chart-block">
+        <div class="chart-title">Lãi/Lỗ theo hướng</div>
+        <canvas id="sidePNLBar"></canvas>
+      </div>
+      <div class="chart-block">
+        <div class="chart-title">Tỷ lệ thắng (%) theo hướng</div>
+        <canvas id="sideWinRate"></canvas>
+      </div>
+      <div class="chart-block">
+        <div class="chart-title">Lãi/Lỗ theo đòn bẩy</div>
+        <canvas id="levPNLBar"></canvas>
+      </div>
+      <div class="chart-block">
+        <div class="chart-title">Tỷ lệ thắng (%) theo đòn bẩy</div>
+        <canvas id="levWinRate"></canvas>
+      </div>
+      <div class="chart-block">
+        <div class="chart-title">Lãi/Lỗ theo loại lệnh</div>
+        <canvas id="orderTypePNLBar"></canvas>
+      </div>
+      <div class="chart-block">
+        <div class="chart-title">Tỷ lệ thắng (%) theo loại lệnh</div>
+        <canvas id="orderTypeWinRate"></canvas>
+      </div>
+      <div class="chart-block">
+        <div class="chart-title">Số lệnh theo giờ</div>
+        <canvas id="hourOrderBar"></canvas>
+      </div>
+      <div class="chart-block">
+        <div class="chart-title">Lãi/Lỗ theo giờ</div>
+        <canvas id="hourPNLBar"></canvas>
+      </div>
+    </div>
+  </div>
+  <script src="lenh.js"></script>
+</body>
+</html>
